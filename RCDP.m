@@ -12,9 +12,16 @@ lnk0_4 = 18.34;
 lnk0_5 = 19.51;
 ER_1 = 
 
-% plot pressure vs riser height
-
-
+%plot pressure vs riser height
+rho_c=1300;              % kg.m^-3; rho_c=catalyst density
+eps=0.5;                 % dimensionless; eps=bed voidage
+g=9.81;                  % m.s^-2; g=gravitational acceleration constant
+z=0:0.1:10;              % z=riser height
+Po=1.3*1.01*10^5         %kg.m.s^-2; Po=Initial pressure
+P=Po-rho_c*(1-eps)*g*z;  %P=pressure
+plot(z,P)
+xlabel('Riser Height (m)')
+ylabel('Pressure (kg.m.s^{-2})')
 
 % equations
 function dEdz = odefcn(P, T)
@@ -31,3 +38,4 @@ dEdz(3) = (k3*power(C_o2, n)*b2*C_ox)/(1_b2*C_ox);
 dEdz(4) = (k4*power(C_o2, n)*C_pa*b3)
 dEdz(5) = (k5*power(C_o2, n)*C_pa*b3)
 end
+
