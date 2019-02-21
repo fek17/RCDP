@@ -5,12 +5,7 @@ b1 = 429;       % m^3.kmol^-1
 b2 = 2024;      % m^3.kmol^-1
 b3 = 1.0001;    % m^3.kmol^-1
 n = 0.428;      % dimensionless
-lnk0_1 = 19.84; 
-lnk0_2 = 20.34;
-lnk0_3 = 20.86;
-lnk0_4 = 18.34;
-lnk0_5 = 19.51;
-ER_1 = 
+
 
 % plot pressure vs riser height
 
@@ -18,7 +13,11 @@ ER_1 =
 
 % equations
 function dEdz = odefcn(P, T)
-
+lnk0_1 = 19.84;
+lnk0_2=20.34;
+lnk0_3=20.86;
+lnk0_4=18.34;
+lnk0_5=19.51;
 k1 =
 k2 =
 k3 =
