@@ -34,11 +34,11 @@ ylabel('Pressure (kg.m.s^{-2})')
 % equations
 function dEdz = odefcn(P, T)
 
-k1 =
-k2 =
-k3 =
-k4 =
-k5 =
+k1 = exp((lnk0_1)-(ER_1/T))
+k2 = exp((lnk0_2)-(ER_2/T))
+k3 = exp((lnk0_3)-(ER_3/T))
+k4 = exp((lnk0_4)-(ER_4/T))
+k5 = exp((lnk0_5)-(ER_5/T))
 dEdz = zeros(5,1); % initialising array of extent of reaction
 dEdz(1) = (k1*power(C_o2, n)*b1*C_ox)/(1+b1*C_ox); % dE1/dz = r1
 dEdz(2) = (k2*power(C_o2, n)*b2*C_ox)/(1+b2*C_ox);
