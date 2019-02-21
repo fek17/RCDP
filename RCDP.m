@@ -9,3 +9,5 @@ n = 0.428;      % dimensionless
 % equations
 
 % plot temperature vs riser height
+
+%plot pressure vs riser height
