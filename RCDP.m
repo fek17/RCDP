@@ -42,7 +42,7 @@ k5 = exp((lnk0_5)-(ER_5/T))
 dEdz = zeros(5,1); % initialising array of extent of reaction
 dEdz(1) = (k1*power(C_o2, n)*b1*C_ox)/(1+b1*C_ox); % dE1/dz = r1
 dEdz(2) = (k2*power(C_o2, n)*b2*C_ox)/(1+b2*C_ox);
-dEdz(3) = (k3*power(C_o2, n)*b2*C_ox)/(1_b2*C_ox);
+dEdz(3) = (k3*power(C_o2, n)*b2*C_ox)/(1+b2*C_ox);
 dEdz(4) = (k4*power(C_o2, n)*C_pa*b3)
 dEdz(5) = (k5*power(C_o2, n)*C_pa*b3)
 end
