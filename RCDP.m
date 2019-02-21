@@ -10,3 +10,5 @@ n = 0.428;      % dimensionless
 y=2;
 
 % plot temperature vs riser height
+
+%plot pressure vs riser height
