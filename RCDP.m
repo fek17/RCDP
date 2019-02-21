@@ -7,5 +7,6 @@ b3 = 1.0001;    % m^3.kmol^-1
 n = 0.428;      % dimensionless
 
 % equations
+y=2;
 
 % plot temperature vs riser height
