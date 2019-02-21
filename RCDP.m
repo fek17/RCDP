@@ -24,22 +24,30 @@ c.ER_3 = 10436;
 c.ER_4 = 11457;
 c.ER_5 = 11457;
 
-% plot pressure vs riser height
-c.rho_c=1300;              % kg.m^-3; rho_c=catalyst density
-c.eps=0.5;                 % dimensionless; eps=bed voidage
-c.g=9.81;                  % m.s^-2; g=gravitational acceleration constant
+% catalyst density
+c.rho_c=1300;               % kg.m^-3
+% bed voidage (epsilon)
+c.eps=0.5;                  % dimensionless
+% acceleration due to gravity
+c.g=9.81;                   % m.s^-2
+% initial pressure
+c.Po=1.3*1.01*10^5;         % kg.m.s^-2; Po=Initial pressure
 
-c.Po=1.3*1.01*10^5;         %kg.m.s^-2; Po=Initial pressure
+%% plot pressure vs riser height
 
-z=0:0.1:10;              % z=riser height (m)
+% riser height
+z = 0:0.1:10;               % m
+
 plot(z,P(z))
 xlabel('Riser Height (m)')
 ylabel('Pressure (kg.m.s^{-2})')
 
+%% function space
+
 % pressure function
-function o = P(z)
+function p = P(z)
 global c
-o = c.Po-c.rho_c*(1-c.eps)*c.g*z;  %P=pressure
+p = c.Po - c.rho_c*(1-c.eps)*c.g*z;  % Pa
 end
 
 % equations
