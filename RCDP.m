@@ -43,7 +43,7 @@ xlabel('Riser Height (m)')
 ylabel('Pressure (kg.m.s^{-2})')
 
 %trying to solve odes
-y0 = [0; 0; 0; 0; 0; 0.235; 16.24; 0; 0; 0; 0; 86.305; 3311; 600];
+y0 = [0; 0; 0; 0; 0; 600; 130000];
 [z, y] = ode45(@odefun, zspan, y0)
 
 %% function space
@@ -58,19 +58,33 @@ end
 function dydz = odefun(z, y)
 global c
 % arrhenius values for rates
-k1 = exp((c.lnk0_1)-(c.ER_1/y(14)));
-k2 = exp((c.lnk0_2)-(c.ER_2/y(14)));
-k3 = exp((c.lnk0_3)-(c.ER_3/y(14)));
-k4 = exp((c.lnk0_4)-(c.ER_4/y(14)));
-k5 = exp((c.lnk0_5)-(c.ER_5/y(14)));
+k1 = exp((c.lnk0_1)-(c.ER_1/y(6)));
+k2 = exp((c.lnk0_2)-(c.ER_2/y(6)));
+k3 = exp((c.lnk0_3)-(c.ER_3/y(6)));
+k4 = exp((c.lnk0_4)-(c.ER_4/y(6)));
+k5 = exp((c.lnk0_5)-(c.ER_5/y(6)));
 
 % molar calculations
-C_ox = 0.235 - y(1) - y(2) - y(3); % moles of oxylene
-C_o2 = 16.24 - 3*y(1) - 6.5*y(2) - 10.5*y(3) - 3.5*y(4) - 7.5*y(5); % moles of oxygen
-C_pa = y(1) - y(4) - y(5); % moles of phthalic anhydride
-C_w = 3*y(1) + 5*y(2) + 5*y(3)  - 2*y(4) + 2*y(5); % moles of water
-C_co = 8*y(2) + 8*y(4); % moles of CO
-C_co2 = 8*y(3) + 8*y(5); % moles of CO2
+n_ox = 0.235 - y(1) - y(2) - y(3); % moles of oxylene
+n_o2 = 16.24 - 3*y(1) - 6.5*y(2) - 10.5*y(3) - 3.5*y(4) - 7.5*y(5); % moles of oxygen
+n_pa = y(1) - y(4) - y(5); % moles of phthalic anhydride
+n_w = 3*y(1) + 5*y(2) + 5*y(3)  - 2*y(4) + 2*y(5); % moles of water
+n_co = 8*y(2) + 8*y(4); % moles of CO
+n_co2 = 8*y(3) + 8*y(5); % moles of CO2
+
+% total molar flowrate
+nt = 16.24 + 69.83 + 0.235 + 5.5*y(2) + 1.5*y(3) + 5.5*y(4) + 1.5*y(5);
+
+% volumetric flowrate
+vt = nt*8.314*y(6)/y(7);
+
+% concentration calculations
+C_ox = n_ox/vt;
+C_o2 = n_o2/vt;
+C_pa = n_pa/vt;
+C_w = n_w/vt;
+C_co = n_co/vt;
+C_co2 = n_co2/vt;
 
 % rates of reaction
 r1 = (k1*power(C_o2, c.n)*c.b1*C_ox)/(1+c.b1*C_ox);
@@ -95,17 +109,16 @@ c.H3 = -3273600;
 c.H4 = -265600;
 c.H5 = -1398000;
 
-% total molar flowrate
-nt = 16.24 + 69.83 + 0.235 + 5.5*y(2) + 1.5*y(3) + 5.5*y(4) + 1.5*y(5);
-
-% volumetric flowrate
-vt = nt*8.314*y(6)/p;
-
 % energy balance 
 c.Tw = 610; % Twall temp, K
 c.a = 1.0310; c.b = -5*power(10,-5); c.c = 2.881*power(10,-7); c.d = -1.025*power(10,-10); % constants for temperature dependence of Cp
-Q = c.A*0.096*(T-c.Tw); % Q=A*U*(T-Tw)
+Q = c.A*0.096*(y(6)-c.Tw); % Q=A*U*(T-Tw)
 cp = @(x) c.a + c.b*x + c.c*(power(x,2)) + c.d*(power(x,3));
-dydz(6) = (Q-(r1*c.H1+r2*c.H2+r3*c.H3+r4*c.H4+r5*c.H5))/(C_ox*cp(T)+C_o2*cp(T)+C_pa*cp(T)+C_w*cp(T)+C_co*cp(T)+C_co2*cp(T));
+
+% temperature
+dydz(6) = (Q-(r1*c.H1+r2*c.H2+r3*c.H3+r4*c.H4+r5*c.H5))/(C_ox*cp(y(6))+C_o2*cp(y(6))+C_pa*cp(y(6))+C_w*cp(y(6))+C_co*cp(y(6))+C_co2*cp(y(6)));
+
+% pressure
+dydz(7) = -c.rho_c*(1-c.eps)*c.g*z;
 end
 

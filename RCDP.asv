@@ -65,12 +65,18 @@ k4 = exp((c.lnk0_4)-(c.ER_4/y(14)));
 k5 = exp((c.lnk0_5)-(c.ER_5/y(14)));
 
 % molar calculations
-C_ox = 0.235 - y(1) - y(2) - y(3); % moles of oxylene
-C_o2 = 16.24 - 3*y(1) - 6.5*y(2) - 10.5*y(3) - 3.5*y(4) - 7.5*y(5); % moles of oxygen
-C_pa = y(1) - y(4) - y(5); % moles of phthalic anhydride
-C_w = 3*y(1) + 5*y(2) + 5*y(3)  - 2*y(4) + 2*y(5); % moles of water
-C_co = 8*y(2) + 8*y(4); % moles of CO
-C_co2 = 8*y(3) + 8*y(5); % moles of CO2
+n_ox = 0.235 - y(1) - y(2) - y(3); % moles of oxylene
+n_o2 = 16.24 - 3*y(1) - 6.5*y(2) - 10.5*y(3) - 3.5*y(4) - 7.5*y(5); % moles of oxygen
+n_pa = y(1) - y(4) - y(5); % moles of phthalic anhydride
+n_w = 3*y(1) + 5*y(2) + 5*y(3)  - 2*y(4) + 2*y(5); % moles of water
+n_co = 8*y(2) + 8*y(4); % moles of CO
+n_co2 = 8*y(3) + 8*y(5); % moles of CO2
+
+% volumetric flowrate
+vt = nt*8.314*y(6)/p;
+
+% concentration calculations
+n_
 
 % rates of reaction
 r1 = (k1*power(C_o2, c.n)*c.b1*C_ox)/(1+c.b1*C_ox);
@@ -98,14 +104,12 @@ c.H5 = -1398000;
 % total molar flowrate
 nt = 16.24 + 69.83 + 0.235 + 5.5*y(2) + 1.5*y(3) + 5.5*y(4) + 1.5*y(5);
 
-% volumetric flowrate
-vt = nt*8.314*y(6)/p;
-
 % energy balance 
 c.Tw = 610; % Twall temp, K
 c.a = 1.0310; c.b = -5*power(10,-5); c.c = 2.881*power(10,-7); c.d = -1.025*power(10,-10); % constants for temperature dependence of Cp
 Q = c.A*0.096*(T-c.Tw); % Q=A*U*(T-Tw)
 cp = @(x) c.a + c.b*x + c.c*(power(x,2)) + c.d*(power(x,3));
-dydz(6) = (Q-(r1*c.H1+r2*c.H2+r3*c.H3+r4*c.H4+r5*c.H5))/(C_ox*cp(T)+C_o2*cp(T)+C_pa*cp(T)+C_w*cp(T)+y(*cp(T)+y(11)*cp(T));
+dydz(6) = (Q-(r1*c.H1+r2*c.H2+r3*c.H3+r4*c.H4+r5*c.H5))/(C_ox*cp(T)+C_o2*cp(T)+C_pa*cp(T)+C_w*cp(T)+C_co*cp(T)+C_co2*cp(T));
+dydz(7) = 
 end
 
