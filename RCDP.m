@@ -35,7 +35,7 @@ c.g=9.81;                   % m.s^-2
 c.Po=1.3*1.01*10^5;         % kg.m.s^-2; Po=Initial pressure
 
 zspan = 10:0.1:20;               % m
-%trying to solve odes
+%solve odes
 y0 = [0; 0; 0; 0; 0; 600; 130000];
 [z, y] = ode45(@odefun, zspan, y0)
 
@@ -50,7 +50,8 @@ k4 = exp((c.lnk0_4)-(c.ER_4/y(6)));
 k5 = exp((c.lnk0_5)-(c.ER_5/y(6)));
 
 % molar calculations
-n_ox = 0.235 - y(1) - y(2) - y(3); % moles of oxylene
+% NOTE; the initial moles are incorrect and need to be recalculated
+n_ox = 0.5 - y(1) - y(2) - y(3); % moles of oxylene 
 n_o2 = 16.24 - 3*y(1) - 6.5*y(2) - 10.5*y(3) - 3.5*y(4) - 7.5*y(5); % moles of oxygen
 n_pa = y(1) - y(4) - y(5); % moles of phthalic anhydride
 n_w = 3*y(1) + 5*y(2) + 5*y(3)  - 2*y(4) + 2*y(5); % moles of water
@@ -95,18 +96,21 @@ c.H4 = -265600;
 c.H5 = -1398000;
 
 % energy balance 
-c.Tw = 610; % Twall temp, K
+c.Tw = 610; % wall temp, K
 c.a = 1.0310; 
 c.b = -5*power(10,-5); 
 c.c = 2.881*power(10,-7); 
 c.d = -1.025*power(10,-10); % constants for temperature dependence of Cp
-Q = c.A*0.096*(y(6)-c.Tw); % Q=A*U*(T-Tw)
+c.U = 0.096; %kW m^-2 K^-1
+Q = c.A*c.U*(y(6)-c.Tw); % Q=A*U*(T-Tw), kW
 cp = @(x) c.a + c.b*x + c.c*(power(x,2)) + c.d*(power(x,3));
 
-% temperature
+% temperature (something in this
+% equation may be causing the
+% imaginary parts?
 dydz(6) = (-Q-(r1*c.H1+r2*c.H2+r3*c.H3+r4*c.H4+r5*c.H5))*c.eps*c.A/(nt*cp(y(6)));
 
-% pressure drop
+% pressure
 dydz(7) = 1.3*power(10,5)-c.rho_c*(1-c.eps)*c.g*z;
 end
 
