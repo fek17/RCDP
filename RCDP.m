@@ -47,14 +47,6 @@ y0 = [0; 0; 0; 0; 0; 600; 130000];
 [z, y] = ode45(@odefun, zspan, y0)
 
 %% function space
-
-% pressure function
-function p = P(z)
-global c
-p = c.Po - c.rho_c*(1-c.eps)*c.g*z;  % Pa
-end
-
-% differential
 function dydz = odefun(z, y)
 global c
 % arrhenius values for rates
