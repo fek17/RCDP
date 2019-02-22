@@ -9,7 +9,8 @@ c.b1 = 429;       % m^3.kmol^-1
 c.b2 = 2024;      % m^3.kmol^-1
 c.b3 = 1.0001;    % m^3.kmol^-1
 c.n = 0.428;      % dimensionless
-c.A = pi*power(0.025,2)/4;  % cross sectional area of reactor, m^2
+c.diameter = 0.025; % diameter of reactor (m)
+c.A = pi*power(c.diameter,2)/4;  % cross sectional area of reactor, m^2
 
 % Ln k0 dimensionless
 c.lnk0_1 = 19.84; 
@@ -69,7 +70,7 @@ nt = c.n_oxi + c.n_o2i + c.n_n2i + 5.5*y(2) + 1.5*y(3) + 5.5*y(4) + 1.5*y(5);
 vt = (nt*8.314*y(6))/y(7);
 
 % total mass flowrate
-mt = n_ox*106.1602 + n_o2*32 + n_pa*148.11 + n_w*18 + n_co*28.01 + n_co2*44; 
+c.mt = 2500; %kg m-2 hr-1
 
 % concentration calculations
 C_ox = n_ox/vt;
@@ -80,11 +81,11 @@ C_co = n_co/vt;
 C_co2 = n_co2/vt;
 
 % rates of reaction
-r1 = (k1*power(C_o2, c.n)*c.b1*C_ox)/(1+c.b1*C_ox);
-r2 = (k2*power(C_o2, c.n)*c.b2*C_ox)/(1+c.b2*C_ox);
-r3 = (k3*power(C_o2, c.n)*c.b2*C_ox)/(1+c.b2*C_ox);
-r4 = (k4*power(C_o2, c.n)*C_pa*c.b3);
-r5 = (k5*power(C_o2, c.n)*C_pa*c.b3);
+r1 = (k1*power(C_o2, c.n)*c.b1*C_ox*c.A*c.eps*c.rho_c)/(1+c.b1*C_ox);
+r2 = (k2*power(C_o2, c.n)*c.b2*C_ox*c.A*c.eps*c.rho_c)/(1+c.b2*C_ox);
+r3 = (k3*power(C_o2, c.n)*c.b2*C_ox*c.A*c.eps*c.rho_c)/(1+c.b2*C_ox);
+r4 = (k4*power(C_o2, c.n)*C_pa*c.b3*c.A*c.eps*c.rho_c);
+r5 = (k5*power(C_o2, c.n)*C_pa*c.b3*c.A*c.eps*c.rho_c);
 
 dydz = zeros(7,1); % initialising array of ODEs
 
@@ -109,13 +110,13 @@ c.b = -5*power(10,-5);
 c.c = 2.881*power(10,-7); 
 c.d = -1.025*power(10,-10); % constants for temperature dependence of Cp
 c.U = 0.096*3600; %kJ h-1 m^-2 K^-1
-Q = c.A*c.U*(y(6)-c.Tw); % Q=A*U*(T-Tw), kW
+Q = c.diameter*pi*c.U*(y(6)-c.Tw); % Q=A*U*(T-Tw), kJ h-1
 cp = @(x) c.a + c.b*x + c.c*(power(x,2)) + c.d*(power(x,3)); %kJ kg^-1 K^-1
 
 % temperature (something in this
 % equation may be causing the
 % imaginary parts?
-dydz(6) = (-Q-(r1*c.H1+r2*c.H2+r3*c.H3+r4*c.H4+r5*c.H5)*c.eps*c.A)/(mt*cp(y(6)));
+dydz(6) = (-Q-(r1*c.H1+r2*c.H2+r3*c.H3+r4*c.H4+r5*c.H5)*c.eps*c.A)/(c.mt*cp(y(6)));
 
 % pressure
 dydz(7) = 1.3*power(10,5)-c.rho_c*(1-c.eps)*c.g*z;
