@@ -49,20 +49,24 @@ k3 = exp((c.lnk0_3)-(c.ER_3/y(6)));
 k4 = exp((c.lnk0_4)-(c.ER_4/y(6)));
 k5 = exp((c.lnk0_5)-(c.ER_5/y(6)));
 
+%initial moles in feed
+c.n_oxi = 1.338;
+c.n_o2i = 27.84;
+c.n_n2i = 104.75;
+
 % molar calculations
-% NOTE; the initial moles are incorrect and need to be recalculated
-n_ox = 0.5 - y(1) - y(2) - y(3); % moles of oxylene 
-n_o2 = 16.24 - 3*y(1) - 6.5*y(2) - 10.5*y(3) - 3.5*y(4) - 7.5*y(5); % moles of oxygen
+n_ox = c.n_oxi - y(1) - y(2) - y(3); % moles of oxylene 
+n_o2 = c.n_o2i - 3*y(1) - 6.5*y(2) - 10.5*y(3) - 3.5*y(4) - 7.5*y(5); % moles of oxygen
 n_pa = y(1) - y(4) - y(5); % moles of phthalic anhydride
 n_w = 3*y(1) + 5*y(2) + 5*y(3)  - 2*y(4) + 2*y(5); % moles of water
 n_co = 8*y(2) + 8*y(4); % moles of CO
 n_co2 = 8*y(3) + 8*y(5); % moles of CO2
 
 % total molar flowrate
-nt = 16.24 + 69.83 + 0.235 + 5.5*y(2) + 1.5*y(3) + 5.5*y(4) + 1.5*y(5);
+nt = c.n_oxi + c.n_o2i + c.n_n2i + 5.5*y(2) + 1.5*y(3) + 5.5*y(4) + 1.5*y(5);
 
 % volumetric flowrate
-vt = nt*8.314*y(6)/y(7);
+vt = (nt*8.314*y(6))/y(7);
 
 % concentration calculations
 C_ox = n_ox/vt;
