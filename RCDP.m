@@ -11,7 +11,7 @@ c.b3 = 1.0001;    % m^3.kmol^-1
 c.n = 0.428;      % dimensionless
 c.A = pi*power(0.025,2)/4;  % cross sectional area of reactor, m^2
 
-% Ln k0
+% Ln k0 dimensionless
 c.lnk0_1 = 19.84; 
 c.lnk0_2 = 20.34;
 c.lnk0_3 = 20.86;
@@ -34,7 +34,7 @@ c.g=9.81;                   % m.s^-2
 % initial pressure
 c.Po=1.3*1.01*10^5;         % kg.m.s^-2; Po=Initial pressure
 
-zspan = 0:0.1:10;               % m
+zspan = 10:0.1:20;               % m
 %trying to solve odes
 y0 = [0; 0; 0; 0; 0; 600; 130000];
 [z, y] = ode45(@odefun, zspan, y0)
@@ -96,12 +96,15 @@ c.H5 = -1398000;
 
 % energy balance 
 c.Tw = 610; % Twall temp, K
-c.a = 1.0310; c.b = -5*power(10,-5); c.c = 2.881*power(10,-7); c.d = -1.025*power(10,-10); % constants for temperature dependence of Cp
+c.a = 1.0310; 
+c.b = -5*power(10,-5); 
+c.c = 2.881*power(10,-7); 
+c.d = -1.025*power(10,-10); % constants for temperature dependence of Cp
 Q = c.A*0.096*(y(6)-c.Tw); % Q=A*U*(T-Tw)
 cp = @(x) c.a + c.b*x + c.c*(power(x,2)) + c.d*(power(x,3));
 
 % temperature
-dydz(6) = (Q-(r1*c.H1+r2*c.H2+r3*c.H3+r4*c.H4+r5*c.H5))/(C_ox*cp(y(6))+C_o2*cp(y(6))+C_pa*cp(y(6))+C_w*cp(y(6))+C_co*cp(y(6))+C_co2*cp(y(6)));
+dydz(6) = (-Q-(r1*c.H1+r2*c.H2+r3*c.H3+r4*c.H4+r5*c.H5))*c.eps*c.A/(nt*cp(y(6)));
 
 % pressure drop
 dydz(7) = 1.3*power(10,5)-c.rho_c*(1-c.eps)*c.g*z;
