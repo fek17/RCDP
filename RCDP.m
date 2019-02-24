@@ -1,5 +1,6 @@
 %% CE2-03-2 Group 6
 clear, clc, close all
+format long
 
 % setup for constants
 global c
@@ -35,9 +36,9 @@ c.g=9.81;                   % m.s^-2
 % initial pressure
 c.Po=1.3*1.01*10^5;         % kg.m.s^-2; Po=Initial pressure
 
-zspan = 10:0.1:20;               % m
+zspan = 0:0.1:20;               % m
 %solve odes
-y0 = [0; 0; 0; 0; 0; 600; 130000]; %initial conditions, 5x extents, temperature, pressure
+y0 = [0; 0; 0; 0; 0; 600; 130000]; %initial conditions, 5x extents, temperature [K], pressure [Pa]
 [z, y] = ode45(@odefun, zspan, y0)
 
 %% function space
@@ -50,7 +51,7 @@ k3 = exp((c.lnk0_3)-(c.ER_3/y(6)));
 k4 = exp((c.lnk0_4)-(c.ER_4/y(6)));
 k5 = exp((c.lnk0_5)-(c.ER_5/y(6)));
 
-%initial moles in feed
+%initial moles in feed (kmol)
 c.n_oxi = 1.338;
 c.n_o2i = 27.84;
 c.n_n2i = 104.75; % nitrogen in air, "inert"
@@ -67,7 +68,7 @@ n_co2 = 8*y(3) + 8*y(5); % moles of CO2
 nt = c.n_oxi + c.n_o2i + c.n_n2i + 5.5*y(2) + 1.5*y(3) + 5.5*y(4) + 1.5*y(5);
 
 % volumetric flowrate
-vt = (nt*8.314*y(6))/y(7);
+vt = (nt*8.314*y(6))*power(10,7)/y(7);
 
 % total mass flowrate
 c.mt = 2500; %kg m-2 hr-1
@@ -116,9 +117,9 @@ cp = @(x) c.a + c.b*x + c.c*(power(x,2)) + c.d*(power(x,3)); %kJ kg^-1 K^-1
 % temperature (something in this
 % equation may be causing the
 % imaginary parts?
-dydz(6) = (-Q-(r1*c.H1+r2*c.H2+r3*c.H3+r4*c.H4+r5*c.H5)*c.eps*c.A)/(c.mt*cp(y(6)));
+dydz(6) = ((-Q-(r1*c.H1+r2*c.H2+r3*c.H3+r4*c.H4+r5*c.H5))*c.eps*c.A)/(c.mt*cp(y(6)));
 
 % pressure
-dydz(7) = 1.3*power(10,5)-c.rho_c*(1-c.eps)*c.g*z;
+dydz(7) = 1.3*power(10,5)-(c.rho_c*(1-c.eps)*c.g*z);
 end
 
