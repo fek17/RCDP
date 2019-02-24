@@ -2,7 +2,7 @@
 clear, clc, close all
 format long
 
-% setup for constants
+%% constants
 global c
 
 % define constants
@@ -28,18 +28,38 @@ c.ER_4 = 11457;
 c.ER_5 = 11457;
 
 % catalyst density
-c.rho_c=1300;               % kg.m^-3
+c.rho_c = 1300;             % kg.m^-3
 % bed voidage (epsilon)
-c.eps=0.5;                  % dimensionless
+c.eps = 0.5;                % dimensionless
 % acceleration due to gravity
-c.g=9.81;                   % m.s^-2
+c.g = 9.81;                 % m.s^-2
 % initial pressure
-c.Po=1.3*1.01*10^5;         % kg.m.s^-2; Po=Initial pressure
+c.Po = 1.3*1.01*10^5;       % kg.m.s^-2; Po=Initial pressure
 
-zspan = 0:0.1:20;               % m
-%solve odes
-y0 = [0; 0; 0; 0; 0; 600; 130000]; %initial conditions, 5x extents, temperature [K], pressure [Pa]
-[z, y] = ode45(@odefun, zspan, y0)
+%% solver
+
+% height of reactor
+zspan = 0:0.1:20;           % m
+
+% initial conditions
+y0 = [0; 0; 0; 0; 0; 600; 130000]; % 5x extents, temperature [K], pressure [Pa]
+
+% solve odes
+[z, y] = ode45(@odefun, zspan, y0);
+
+%% plot
+
+figure
+yyaxis left
+hold on
+for i = 1:5
+    plot(z,y(:,i),'DisplayName',sprintf('\\xi_%u',i))
+end
+ylabel('\xi_i');
+yyaxis right
+plot(z,y(:,6),'DisplayName','T / K')
+ylabel('T / K');
+legend('Location','northwest');
 
 %% function space
 function dydz = odefun(z, y)
@@ -68,7 +88,7 @@ n_co2 = 8*y(3) + 8*y(5); % moles of CO2
 nt = c.n_oxi + c.n_o2i + c.n_n2i + 5.5*y(2) + 1.5*y(3) + 5.5*y(4) + 1.5*y(5);
 
 % volumetric flowrate
-vt = (nt*8.314*y(6))*power(10,7)/y(7);
+vt = (nt*8.314*y(6))*power(10,3)/y(7);
 
 % total mass flowrate
 c.mt = 2500; %kg m-2 hr-1
