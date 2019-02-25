@@ -6,12 +6,21 @@ format long
 global c
 
 % define constants
-c.b1 = 429;       % m^3.kmol^-1
-c.b2 = 2024;      % m^3.kmol^-1
-c.b3 = 1.0001;    % m^3.kmol^-1
-c.n = 0.428;      % dimensionless
+c.b1 = 429;         % m^3.kmol^-1
+c.b2 = 2024;        % m^3.kmol^-1
+c.b3 = 1.0001;      % m^3.kmol^-1
+c.n = 0.428;        % dimensionless
 c.diameter = 0.025; % diameter of reactor (m)
 c.A = pi*power(c.diameter,2)/4;  % cross sectional area of reactor, m^2
+
+% catalyst density
+c.rho_c = 1300;     % kg.m^-3
+% bed voidage (epsilon)
+c.eps = 0.5;        % dimensionless
+% acceleration due to gravity
+c.g = 9.81;         % m.s^-2
+% initial pressure
+c.Po = 1.3*10^5;    % Pa
 
 % Ln k0 dimensionless
 c.lnk0_1 = 19.84; 
@@ -27,14 +36,33 @@ c.ER_3 = 10436;
 c.ER_4 = 11457;
 c.ER_5 = 11457;
 
-% catalyst density
-c.rho_c = 1300;             % kg.m^-3
-% bed voidage (epsilon)
-c.eps = 0.5;                % dimensionless
-% acceleration due to gravity
-c.g = 9.81;                 % m.s^-2
-% initial pressure
-c.Po = 1.3*10^5;            % Pa
+%% calculations
+
+% feed species
+c.f.T = table('RowNames',{'OX';'N2';'O2'});
+% mole fractions
+c.f.T.x_i = [0.01; 0.78; 0.21];
+% molecular weight
+c.f.T.Mw = [106.1602; 28.0134; 31.9988];
+c.f.T.Properties.VariableUnits{'Mw'} = 'kg.kmol^{-1}';
+
+% total Mw of feed
+c.f.Mw = dot(c.f.T.x_i,c.f.T.Mw);       % kg.kmol^{-1}
+
+% feed mass flux
+c.f.massFlux = 2500;                    % kg.m^-2.h^-1
+
+% feed molar flow
+c.f.Mf = c.f.massFlux / c.f.Mw * c.A;   % kmol.h^{-1}
+
+% component molar flows
+c.f.T.Mf = c.f.Mf * c.f.T.x_i;
+c.f.T.Properties.VariableUnits{'Mf'} = 'kmol.h^{-1}';
+
+% extract initial feed values for solver ( kmol.h^{-1} )
+c.n_oxi = c.f.T{'OX','Mf'};
+c.n_o2i = c.f.T{'O2','Mf'};
+c.n_n2i = c.f.T{'N2','Mf'}; % nitrogen in air, inert
 
 %% solver
 
@@ -68,17 +96,12 @@ function dydz = odefun(z, y)
 % bring in constants
 global c
 
-% arrhenius values for rates
+% kinetic constant 
 k1 = exp((c.lnk0_1)-(c.ER_1/y(6)));
 k2 = exp((c.lnk0_2)-(c.ER_2/y(6)));
 k3 = exp((c.lnk0_3)-(c.ER_3/y(6)));
 k4 = exp((c.lnk0_4)-(c.ER_4/y(6)));
 k5 = exp((c.lnk0_5)-(c.ER_5/y(6)));
-
-%initial moles in feed (kmol)
-c.n_oxi = 1.338;
-c.n_o2i = 27.84;
-c.n_n2i = 104.75; % nitrogen in air, "inert"
 
 % molar calculations
 n_ox = c.n_oxi - y(1) - y(2) - y(3); % moles of oxylene 
@@ -122,7 +145,7 @@ dydz(4) = r4*c.eps*c.A;
 dydz(5) = r5*c.eps*c.A;
 
 % enthalpies of reaction (kJ/kmol)
-c.H1 = -128300; 
+c.H1 = -1283000; 
 c.H2 = -1526200;
 c.H3 = -3273600;
 c.H4 = -265600;
