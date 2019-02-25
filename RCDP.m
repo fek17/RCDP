@@ -34,7 +34,7 @@ c.eps = 0.5;                % dimensionless
 % acceleration due to gravity
 c.g = 9.81;                 % m.s^-2
 % initial pressure
-c.Po = 1.3*1.01*10^5;       % kg.m.s^-2; Po=Initial pressure
+c.Po = 1.3*10^5;            % Pa
 
 %% solver
 
@@ -42,7 +42,7 @@ c.Po = 1.3*1.01*10^5;       % kg.m.s^-2; Po=Initial pressure
 zspan = 0:0.1:20;           % m
 
 % initial conditions
-y0 = [0; 0; 0; 0; 0; 600; 130000]; % 5x extents, temperature [K], pressure [Pa]
+y0 = [0; 0; 0; 0; 0; 600; c.Po]; % 5x extents, temperature [K], pressure [Pa]
 
 % solve odes
 [z, y] = ode45(@odefun, zspan, y0);
@@ -62,8 +62,12 @@ ylabel('T / K');
 legend('Location','northwest');
 
 %% function space
+
 function dydz = odefun(z, y)
+
+% bring in constants
 global c
+
 % arrhenius values for rates
 k1 = exp((c.lnk0_1)-(c.ER_1/y(6)));
 k2 = exp((c.lnk0_2)-(c.ER_2/y(6)));
