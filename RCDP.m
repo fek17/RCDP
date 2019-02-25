@@ -138,22 +138,28 @@ C_w = n_w/vt;
 C_co = n_co/vt;
 C_co2 = n_co2/vt;
 
-% rates of reaction ( kmol.h^{-1}.kg_cat.^{-1} )
-r1 = (k1*power(C_o2, c.n)*c.b1*C_ox*c.A*c.eps*c.rho_c)/(1+c.b1*C_ox);
-r2 = (k2*power(C_o2, c.n)*c.b2*C_ox*c.A*c.eps*c.rho_c)/(1+c.b2*C_ox);
-r3 = (k3*power(C_o2, c.n)*c.b2*C_ox*c.A*c.eps*c.rho_c)/(1+c.b2*C_ox);
-r4 = (k4*power(C_o2, c.n)*C_pa*c.b3*c.A*c.eps*c.rho_c);
-r5 = (k5*power(C_o2, c.n)*C_pa*c.b3*c.A*c.eps*c.rho_c);
+% rates of reaction ( kmol.h^{-1}.kg_cat^{-1} )
+r1 = (k1*power(C_o2, c.n)*c.b1*C_ox)/(1+c.b1*C_ox);
+r2 = (k2*power(C_o2, c.n)*c.b2*C_ox)/(1+c.b2*C_ox);
+r3 = (k3*power(C_o2, c.n)*c.b2*C_ox)/(1+c.b2*C_ox);
+r4 = (k4*power(C_o2, c.n)*C_pa*c.b3);
+r5 = (k5*power(C_o2, c.n)*C_pa*c.b3);
 
 % initialising array for derivatives
 dydz = zeros(7,1);
 
-% extents: dEi/dz = ri * epsilon * area
-dydz(1) = r1*c.eps*c.A; 
-dydz(2) = r2*c.eps*c.A;
-dydz(3) = r3*c.eps*c.A;
-dydz(4) = r4*c.eps*c.A;
-dydz(5) = r5*c.eps*c.A;
+% d(kg_c)/dz
+c.dkgcdz = c.A * (1-c.eps) * c.rho_c;
+
+% void area
+c.A_v = c.eps * c.A;
+
+% extents [ kmol.h^{-1}.(m^3)_void ]
+dydz(1) = r1 * c.A * c.rho_c * (1-c.eps);
+dydz(2) = r2 * c.A * c.rho_c * (1-c.eps);
+dydz(3) = r3 * c.A * c.rho_c * (1-c.eps);
+dydz(4) = r4 * c.A * c.rho_c * (1-c.eps);
+dydz(5) = r5 * c.A * c.rho_c * (1-c.eps);
 
 % enthalpies of reaction (kJ/kmol)
 c.H1 = -1283000; 
@@ -162,17 +168,22 @@ c.H3 = -3273600;
 c.H4 = -265600;
 c.H5 = -1398000;
 
+% heat capacity constants
+c.a = 1.0310; 
+c.b = -5e-5; 
+c.c = 2.881e-7; 
+c.d = -1.025e-10;
+
+% heat capacity function
+cp = @(T) c.a + c.b*T + c.c*(power(T,2)) + c.d*(power(T,3)); % kJ kg^-1 K^-1
+
 % energy balance 
 % total mass flowrate
 c.mt = 2500; %kg m-2 hr-1
 c.Tw = 610; % wall temp, K
-c.a = 1.0310; 
-c.b = -5*power(10,-5); 
-c.c = 2.881*power(10,-7); 
-c.d = -1.025*power(10,-10); % constants for temperature dependence of Cp
+
 c.U = 0.096*3600; %kJ h-1 m^-2 K^-1
 Q = c.D*pi*c.U*(y(6)-c.Tw); % Q=A*U*(T-Tw), kJ h-1
-cp = @(x) c.a + c.b*x + c.c*(power(x,2)) + c.d*(power(x,3)); %kJ kg^-1 K^-1
 
 % temperature (something in this
 % equation may be causing the
