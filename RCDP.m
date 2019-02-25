@@ -130,9 +130,6 @@ nt = c.n_oxi + c.n_o2i + c.n_n2i + 5.5*y(2) + 1.5*y(3) + 5.5*y(4) + 1.5*y(5);
 % volumetric flowrate
 vt = nt * (c.R*y(6))/y(7) * 10^3; % m^3.h^{-1}
 
-% total mass flowrate
-c.mt = 2500; %kg m-2 hr-1
-
 % concentration calculations
 C_ox = n_ox/vt;
 C_o2 = n_o2/vt;
@@ -148,9 +145,10 @@ r3 = (k3*power(C_o2, c.n)*c.b2*C_ox*c.A*c.eps*c.rho_c)/(1+c.b2*C_ox);
 r4 = (k4*power(C_o2, c.n)*C_pa*c.b3*c.A*c.eps*c.rho_c);
 r5 = (k5*power(C_o2, c.n)*C_pa*c.b3*c.A*c.eps*c.rho_c);
 
-dydz = zeros(7,1); % initialising array of ODEs
+% initialising array for derivatives
+dydz = zeros(7,1);
 
-% dEi/dz = ri * epsilon * area
+% extents: dEi/dz = ri * epsilon * area
 dydz(1) = r1*c.eps*c.A; 
 dydz(2) = r2*c.eps*c.A;
 dydz(3) = r3*c.eps*c.A;
@@ -165,6 +163,8 @@ c.H4 = -265600;
 c.H5 = -1398000;
 
 % energy balance 
+% total mass flowrate
+c.mt = 2500; %kg m-2 hr-1
 c.Tw = 610; % wall temp, K
 c.a = 1.0310; 
 c.b = -5*power(10,-5); 
