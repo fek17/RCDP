@@ -118,7 +118,7 @@ dydz(4) = r4*c.eps*c.A;
 dydz(5) = r5*c.eps*c.A;
 
 % enthalpies of reaction (kJ/kmol)
-c.H1 = -128300; 
+c.H1 = -1283000; 
 c.H2 = -1526200;
 c.H3 = -3273600;
 c.H4 = -265600;
