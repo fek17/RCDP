@@ -5,22 +5,27 @@ format long
 %% constants
 global c
 
+% diameter of reactor 
+c.D = 0.025; % m
+% cross sectional area of reactor
+c.A = pi*power(c.D,2)/4;  % m^2
+% acceleration due to gravity
+c.g = 9.81;         % m.s^-2
+% initial pressure
+c.Po = 1.3*10^5;    % Pa
+
+%% kinetics
+
 % define constants
 c.b1 = 429;         % m^3.kmol^-1
 c.b2 = 2024;        % m^3.kmol^-1
 c.b3 = 1.0001;      % m^3.kmol^-1
 c.n = 0.428;        % dimensionless
-c.diameter = 0.025; % diameter of reactor (m)
-c.A = pi*power(c.diameter,2)/4;  % cross sectional area of reactor, m^2
 
 % catalyst density
 c.rho_c = 1300;     % kg.m^-3
 % bed voidage (epsilon)
 c.eps = 0.5;        % dimensionless
-% acceleration due to gravity
-c.g = 9.81;         % m.s^-2
-% initial pressure
-c.Po = 1.3*10^5;    % Pa
 
 % Ln k0 dimensionless
 c.lnk0_1 = 19.84; 
@@ -36,7 +41,7 @@ c.ER_3 = 10436;
 c.ER_4 = 11457;
 c.ER_5 = 11457;
 
-%% calculations
+%% feed
 
 % feed species
 c.f.T = table('RowNames',{'OX';'N2';'O2'});
@@ -87,7 +92,7 @@ ylabel('\xi_i');
 yyaxis right
 plot(z,y(:,6),'DisplayName','T / K')
 ylabel('T / K');
-legend('Location','northwest');
+legend('Location','east');
 
 %% function space
 
@@ -158,7 +163,7 @@ c.b = -5*power(10,-5);
 c.c = 2.881*power(10,-7); 
 c.d = -1.025*power(10,-10); % constants for temperature dependence of Cp
 c.U = 0.096*3600; %kJ h-1 m^-2 K^-1
-Q = c.diameter*pi*c.U*(y(6)-c.Tw); % Q=A*U*(T-Tw), kJ h-1
+Q = c.D*pi*c.U*(y(6)-c.Tw); % Q=A*U*(T-Tw), kJ h-1
 cp = @(x) c.a + c.b*x + c.c*(power(x,2)) + c.d*(power(x,3)); %kJ kg^-1 K^-1
 
 % temperature (something in this
