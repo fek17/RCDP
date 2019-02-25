@@ -59,8 +59,12 @@ c.f.Mw = dot(c.f.T.x_i,c.f.T.Mw);       % kg.kmol^{-1}
 % feed mass flux
 c.f.massFlux = 2500;                    % kg.m^-2.h^-1
 
+% feed mass flow
+c.f.massFlow = c.f.massFlux * c.A;      % kg.h^-1
+% *assumption klaxon* ? superficial mass flux so use total area of column
+
 % feed molar flow
-c.f.Mf = c.f.massFlux / c.f.Mw * c.A;   % kmol.h^{-1}
+c.f.Mf = c.f.massFlow / c.f.Mw ;   % kmol.h^{-1}
 
 % component molar flows
 c.f.T.Mf = c.f.Mf * c.f.T.x_i;
@@ -154,7 +158,7 @@ c.dkgcdz = c.A * (1-c.eps) * c.rho_c;
 % void area
 c.A_v = c.eps * c.A;
 
-% extents [ kmol.h^{-1}.(m^3)_void ]
+% extents [ kmol.h^{-1}.m^{-1} ]
 dydz(1) = r1 * c.A * c.rho_c * (1-c.eps);
 dydz(2) = r2 * c.A * c.rho_c * (1-c.eps);
 dydz(3) = r3 * c.A * c.rho_c * (1-c.eps);
@@ -178,8 +182,7 @@ c.d = -1.025e-10;
 cp = @(T) c.a + c.b*T + c.c*(power(T,2)) + c.d*(power(T,3)); % kJ kg^-1 K^-1
 
 % energy balance 
-% total mass flowrate
-c.mt = 2500; %kg m-2 hr-1
+
 c.Tw = 610; % wall temp, K
 
 c.U = 0.096*3600; %kJ h-1 m^-2 K^-1
