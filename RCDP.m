@@ -6,9 +6,9 @@ format long
 global c
 
 % diameter of reactor 
-c.D = 0.025; % m
+c.D = 0.025;        % m
 % cross sectional area of reactor
-c.A = pi*power(c.D,2)/4;  % m^2
+c.A = pi*c.D^2/4;   % m^2
 % acceleration due to gravity
 c.g = 9.81;         % m.s^-2
 % initial pressure
