@@ -82,13 +82,13 @@ c.n_co2i = 0;
 %% solver
 
 % height of reactor
-zspan = 0:0.1:20;           % m
+zspan = 0:0.001:10;           % m
 
 % initial conditions
 y0 = [0; 0; 0; 0; 0; 600; c.Po]; % 5x extents [kmol.h^{-1}], temperature [K], pressure [Pa]
 
 % solve odes
-[z, y] = ode45(@odefun, zspan, y0);
+[z, y] = ode15s(@odefun, zspan, y0);
 
 %% plot
 
@@ -103,6 +103,10 @@ yyaxis right
 plot(z,y(:,6),'DisplayName','T / K')
 ylabel('T / K');
 legend('Location','east');
+
+% export
+formatFig(12,12);
+print(gcf, '-dpdf', [pwd '/graphs/overview.pdf']);
 
 %% function space
 
@@ -198,3 +202,10 @@ dydz(6) = -(c.H1*dydz(1) + c.H2*dydz(2) + c.H3*dydz(3) + c.H4*dydz(4) + c.H5*dyd
 dydz(7) = 1.3*power(10,5)-(c.rho_c*(1-c.eps)*c.g*z);
 end
 
+function [] = formatFig(w,h)
+fig = gcf;
+fig.PaperOrientation = 'landscape';
+fig.PaperSize = [w h];
+fig.PaperPosition = [0 0 w h];
+fig.Renderer = 'Painters'; % for 3D plots
+end
