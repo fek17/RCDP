@@ -13,6 +13,8 @@ c.A = pi*power(c.D,2)/4;  % m^2
 c.g = 9.81;         % m.s^-2
 % initial pressure
 c.Po = 1.3*10^5;    % Pa
+% ideal gas constant
+c.R = 8.3144598;    % J.K^{-1}.mol^{-1}
 
 %% kinetics
 
@@ -68,6 +70,10 @@ c.f.T.Properties.VariableUnits{'Mf'} = 'kmol.h^{-1}';
 c.n_oxi = c.f.T{'OX','Mf'};
 c.n_o2i = c.f.T{'O2','Mf'};
 c.n_n2i = c.f.T{'N2','Mf'}; % nitrogen in air, inert
+c.n_pai = 0;
+c.n_wi = 0;
+c.n_coi = 0;
+c.n_co2i = 0;
 
 %% solver
 
@@ -75,7 +81,7 @@ c.n_n2i = c.f.T{'N2','Mf'}; % nitrogen in air, inert
 zspan = 0:0.1:20;           % m
 
 % initial conditions
-y0 = [0; 0; 0; 0; 0; 600; c.Po]; % 5x extents, temperature [K], pressure [Pa]
+y0 = [0; 0; 0; 0; 0; 600; c.Po]; % 5x extents [kmol.h^{-1}], temperature [K], pressure [Pa]
 
 % solve odes
 [z, y] = ode45(@odefun, zspan, y0);
@@ -101,26 +107,28 @@ function dydz = odefun(z, y)
 % bring in constants
 global c
 
-% kinetic constant 
+% kinetic constant ( h^{-1}.kmol^{1-n}.m^{3n}.kg_cat^{-1} )
 k1 = exp((c.lnk0_1)-(c.ER_1/y(6)));
 k2 = exp((c.lnk0_2)-(c.ER_2/y(6)));
 k3 = exp((c.lnk0_3)-(c.ER_3/y(6)));
 k4 = exp((c.lnk0_4)-(c.ER_4/y(6)));
 k5 = exp((c.lnk0_5)-(c.ER_5/y(6)));
 
-% molar calculations
-n_ox = c.n_oxi - y(1) - y(2) - y(3); % moles of oxylene 
+% molar flow calculations [ kmol.h^{-1} ]
+n_ox = c.n_oxi - y(1) - y(2) - y(3); % moles of o-xylene 
 n_o2 = c.n_o2i - 3*y(1) - 6.5*y(2) - 10.5*y(3) - 3.5*y(4) - 7.5*y(5); % moles of oxygen
-n_pa = y(1) - y(4) - y(5); % moles of phthalic anhydride
-n_w = 3*y(1) + 5*y(2) + 5*y(3)  - 2*y(4) + 2*y(5); % moles of water
-n_co = 8*y(2) + 8*y(4); % moles of CO
-n_co2 = 8*y(3) + 8*y(5); % moles of CO2
+n_pa = c.n_pai + y(1) - y(4) - y(5); % moles of phthalic anhydride
+n_w = c.n_wi + 3*y(1) + 5*y(2) + 5*y(3) + 2*y(4) + 2*y(5); % moles of water
+n_co = c.n_coi + 8*y(2) + 8*y(4); % moles of CO
+n_co2 = c.n_co2i + 8*y(3) + 8*y(5); % moles of CO2
+n_n2 = c.n_n2i;
 
-% total molar flowrate
+% total molar flowrate [ kmol.h^{-1} ]
 nt = c.n_oxi + c.n_o2i + c.n_n2i + 5.5*y(2) + 1.5*y(3) + 5.5*y(4) + 1.5*y(5);
+% nt = n_ox + n_o2 + n_pa + n_w + n_co + n_co2 + n_n2; % alt. approach
 
 % volumetric flowrate
-vt = (nt*8.314*y(6))*power(10,3)/y(7);
+vt = nt * (c.R*y(6))/y(7) * 10^3; % m^3.h^{-1}
 
 % total mass flowrate
 c.mt = 2500; %kg m-2 hr-1
@@ -133,7 +141,7 @@ C_w = n_w/vt;
 C_co = n_co/vt;
 C_co2 = n_co2/vt;
 
-% rates of reaction
+% rates of reaction ( kmol.h^{-1}.kg_cat.^{-1} )
 r1 = (k1*power(C_o2, c.n)*c.b1*C_ox*c.A*c.eps*c.rho_c)/(1+c.b1*C_ox);
 r2 = (k2*power(C_o2, c.n)*c.b2*C_ox*c.A*c.eps*c.rho_c)/(1+c.b2*C_ox);
 r3 = (k3*power(C_o2, c.n)*c.b2*C_ox*c.A*c.eps*c.rho_c)/(1+c.b2*C_ox);
