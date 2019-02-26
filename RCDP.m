@@ -22,7 +22,7 @@ c.R = 8.3144598;    % J.K^{-1}.mol^{-1}
 
 %% kinetics
 
-% define constants
+% constants in rate expressions
 c.b1 = 429;         % m^3.kmol^-1
 c.b2 = 2024;        % m^3.kmol^-1
 c.b3 = 1.0001;      % m^3.kmol^-1
@@ -33,19 +33,12 @@ c.rho_c = 1300;     % kg.m^-3
 % bed voidage (epsilon)
 c.eps = 0.5;        % dimensionless
 
-% Ln k0 dimensionless
-c.lnk0_1 = 19.24; 
-c.lnk0_2 = 20.04;
-c.lnk0_3 = 20.36;
-c.lnk0_4 = 28.55;
-c.lnk0_5 = 28.45;
-
-% E/R (K)
-c.ER_1 = 14987; 
-c.ER_2 = 15862;
-c.ER_3 = 15862;
-c.ER_4 = 16040;
-c.ER_5 = 16040;
+% table of reaction data ( ln k_0  E/R ?h )
+c.RX = table;
+c.RX.lnk0 = [19.24 20.04 20.36 28.55 28.45]';
+c.RX.ER = [14987 15862 15862 16040 16040]';
+c.RX.h = [-1283000 -1526200 -3273600 -265600 -1398000]';
+c.RX.Properties.VariableUnits = {'dimensionless','K','kJ.kmol^{-1}'};
 
 %% species
 
@@ -55,7 +48,6 @@ c.S = table('RowNames',{'OX' 'PA' 'CO2' 'CO' 'H2O' 'O2' 'N2'});
 % molecular weights
 c.S.Mw = [106.1602 148.1100 44.0095 28.0101 18.0153 31.9988 28.0134]';
 c.S.Properties.VariableUnits{'Mw'} = 'kg.kmol^{-1}';
-%c.S{'OX','Mw'} = 106.1602;
 
 %% feed
 
@@ -95,7 +87,6 @@ v = array2table(zeros(numel(t.zspan),7));
 v.Properties.VariableNames = {'xi_1'        'xi_2'        'xi_3'        'xi_4'        'xi_5'        'T' 'P' };
 v.Properties.VariableUnits = {'kmol.h^{-1}' 'kmol.h^{-1}' 'kmol.h^{-1}' 'kmol.h^{-1}' 'kmol.h^{-1}' 'K' 'Pa'};
 
-c.count = 0;
 % solve odes
 [t.z, t.y] = ode15s(@odefun, t.zspan, t.y0);
 
@@ -129,14 +120,12 @@ function dydz = odefun(z, y)
 % bring in constants
 global c
 
-c.count = c.count+1;
-
 % kinetic constant ( h^{-1}.kmol^{1-n}.m^{3n}.kg_cat^{-1} )
-k1 = exp((c.lnk0_1)-(c.ER_1/y(6)));
-k2 = exp((c.lnk0_2)-(c.ER_2/y(6)));
-k3 = exp((c.lnk0_3)-(c.ER_3/y(6)));
-k4 = exp((c.lnk0_4)-(c.ER_4/y(6)));
-k5 = exp((c.lnk0_5)-(c.ER_5/y(6)));
+k1 = exp((c.RX.lnk0(1))-(c.RX.ER(1)/y(6)));
+k2 = exp((c.RX.lnk0(2))-(c.RX.ER(2)/y(6)));
+k3 = exp((c.RX.lnk0(3))-(c.RX.ER(3)/y(6)));
+k4 = exp((c.RX.lnk0(4))-(c.RX.ER(4)/y(6)));
+k5 = exp((c.RX.lnk0(5))-(c.RX.ER(5)/y(6)));
 
 % do material balances
 S = reactorMB(c.S, y(1:5), y(6), y(7));
@@ -171,13 +160,6 @@ dydz(3) = r3 * c.eps * c.A;
 dydz(4) = r4 * c.eps * c.A;
 dydz(5) = r5 * c.eps * c.A;
 
-% enthalpies of reaction (kJ/kmol)
-c.H1 = -1283000; 
-c.H2 = -1526200;
-c.H3 = -3273600;
-c.H4 = -265600;
-c.H5 = -1398000;
-
 % heat capacity constants
 c.a = 1.0310; 
 c.b = -5e-5; 
@@ -200,11 +182,11 @@ Q = c.D*pi*c.U*(y(6)-c.Tw); %(y(6)-c.Tw); % Q=A*U*(T-Tw), kJ h-1 m-1
 c.S_w = pi * c.D * z; % m^2
 
 % temperature
-% dydz(6) = ((-Q-(y(1)*c.H1+y(2)*c.H2+y(3)*c.H3+y(4)*c.H4+y(5)*c.H5))*c.eps*c.A)/(c.mt*cp(y(6)));
+% dydz(6) = ((-Q-(y(1)*c.RX.h(1)+y(2)*c.RX.h(2)+y(3)*c.RX.h(3)+y(4)*c.RX.h(4)+y(5)*c.RX.h(5)))*c.eps*c.A)/(c.mt*cp(y(6)));
 
-dydz(6) = -Q-(c.H1*dydz(1) + c.H2*dydz(2) + c.H3*dydz(3) + c.H4*dydz(4) + c.H5*dydz(5))/(c.f.massFlow*cp(y(6)));
+dydz(6) = -Q-(c.RX.h(1)*dydz(1) + c.RX.h(2)*dydz(2) + c.RX.h(3)*dydz(3) + c.RX.h(4)*dydz(4) + c.RX.h(5)*dydz(5))/(c.f.massFlow*cp(y(6)));
 
-% dydz(6) = -(c.H1*dydz(1) + c.H2*dydz(2) + c.H3*dydz(3) + c.H4*dydz(4) + c.H5*dydz(5))/(cp(y(6))*c.f.massFlow+c.U*c.S_w);
+% dydz(6) = -(c.RX.h(1)*dydz(1) + c.RX.h(2)*dydz(2) + c.RX.h(3)*dydz(3) + c.RX.h(4)*dydz(4) + c.RX.h(5)*dydz(5))/(cp(y(6))*c.f.massFlow+c.U*c.S_w);
 
 % pressure
 dydz(7) = 1.3*power(10,5)-(c.rho_c*(1-c.eps)*c.g*z);
