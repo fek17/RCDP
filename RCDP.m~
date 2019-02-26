@@ -82,7 +82,7 @@ c.n_co2i = 0;
 %% solver
 
 % height of reactor
-zspan = 0:0.001:20;           % m
+zspan = 0:0.001:10;           % m
 
 % initial conditions
 y0 = [0; 0; 0; 0; 0; 600; c.Po]; % 5x extents [kmol.h^{-1}], temperature [K], pressure [Pa]
