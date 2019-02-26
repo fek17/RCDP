@@ -102,7 +102,7 @@ hold on
 for i = 1:5
     plot(v.z,t.y(:,i),'DisplayName',sprintf('\\xi_%u',i))
 end
-ylabel('\xi_i');
+ylabel('\xi_i / kmol.h^{-1}');
 xlabel('z / m');
 yyaxis right
 plot(v.z,t.y(:,6),'DisplayName','T / K')
