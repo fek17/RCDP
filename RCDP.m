@@ -47,18 +47,26 @@ c.ER_3 = 15862;
 c.ER_4 = 16040;
 c.ER_5 = 16040;
 
+%% species
+
+% setup table
+c.S = table('RowNames',{'OX' 'PA' 'CO2' 'CO' 'H2O' 'O2' 'N2'});
+
+% molecular weights
+c.S.Mw = [106.1602 148.1100 44.0095 28.0101 18.0153 31.9988 28.0134]';
+c.S.Properties.VariableUnits{'Mw'} = 'kg.kmol^{-1}';
+%c.S{'OX','Mw'} = 106.1602;
+
 %% feed
 
-% feed species
-c.f.T = table('RowNames',{'OX';'N2';'O2'});
-% mole fractions
-c.f.T.x_i = [0.01; 0.78; 0.21];
-% molecular weight
-c.f.T.Mw = [106.1602; 28.0134; 31.9988];
-c.f.T.Properties.VariableUnits{'Mw'} = 'kg.kmol^{-1}';
+% feed mole fractions
+c.S.x0 = zeros(7,1);
+c.S{'OX','x0'} = 0.01;
+c.S{'N2','x0'} = 0.78;
+c.S{'O2','x0'} = 0.21;
 
 % total Mw of feed
-c.f.Mw = dot(c.f.T.x_i,c.f.T.Mw);       % kg.kmol^{-1}
+c.f.Mw = dot(c.S.x0,c.S.Mw);       % kg.kmol^{-1}
 
 % feed mass flux
 c.f.massFlux = 2500;                    % kg.m^-2.h^-1
@@ -68,20 +76,11 @@ c.f.massFlow = c.f.massFlux * c.A;      % kg.h^-1
 % *assumption klaxon* ? superficial mass flux so use total area of column
 
 % feed molar flow
-c.f.Mf = c.f.massFlow / c.f.Mw ;   % kmol.h^{-1}
+c.f.n0 = c.f.massFlow / c.f.Mw ;   % kmol.h^{-1}
 
 % component molar flows
-c.f.T.Mf = c.f.Mf * c.f.T.x_i;
-c.f.T.Properties.VariableUnits{'Mf'} = 'kmol.h^{-1}';
-
-% extract initial feed values for solver ( kmol.h^{-1} )
-c.n_oxi = c.f.T{'OX','Mf'};
-c.n_o2i = c.f.T{'O2','Mf'};
-c.n_n2i = c.f.T{'N2','Mf'}; % nitrogen in air, inert
-c.n_pai = 0;
-c.n_wi = 0;
-c.n_coi = 0;
-c.n_co2i = 0;
+c.S.n0 = c.f.n0 * c.S.x0;
+c.S.Properties.VariableUnits{'n0'} = 'kmol.h^{-1}';
 
 %% solver
 
@@ -124,6 +123,7 @@ print(gcf, '-dpdf', [pwd '/graphs/overview.pdf']);
 
 %% function space
 
+% ode function for solver
 function dydz = odefun(z, y)
 
 % bring in constants
@@ -138,29 +138,16 @@ k3 = exp((c.lnk0_3)-(c.ER_3/y(6)));
 k4 = exp((c.lnk0_4)-(c.ER_4/y(6)));
 k5 = exp((c.lnk0_5)-(c.ER_5/y(6)));
 
-% molar flow calculations [ kmol.h^{-1} ]
-n_ox = c.n_oxi - y(1) - y(2) - y(3); % moles of o-xylene 
-n_o2 = c.n_o2i - 3*y(1) - 6.5*y(2) - 10.5*y(3) - 3.5*y(4) - 7.5*y(5); % moles of oxygen
-n_pa = c.n_pai + y(1) - y(4) - y(5); % moles of phthalic anhydride
-n_w = c.n_wi + 3*y(1) + 5*y(2) + 5*y(3) + 2*y(4) + 2*y(5); % moles of water
-n_co = c.n_coi + 8*y(2) + 8*y(4); % moles of CO
-n_co2 = c.n_co2i + 8*y(3) + 8*y(5); % moles of CO2
-n_n2 = c.n_n2i;
-
-% total molar flowrate [ kmol.h^{-1} ]
-nt = c.n_oxi + c.n_o2i + c.n_n2i + 5.5*y(2) + 1.5*y(3) + 5.5*y(4) + 1.5*y(5);
-% nt = n_ox + n_o2 + n_pa + n_w + n_co + n_co2 + n_n2; % alt. approach
-
 % volumetric flowrate
 vt = (nt * (c.R*y(6))/y(7)) * 10^3; % m^3.h^{-1}
 
-% concentration calculations
-C_ox = n_ox/vt;
-C_o2 = n_o2/vt;
-C_pa = n_pa/vt;
-C_w = n_w/vt;
-C_co = n_co/vt;
-C_co2 = n_co2/vt;
+% % concentration calculations
+% C_ox = n_ox/vt;
+% C_o2 = n_o2/vt;
+% C_pa = n_pa/vt;
+% C_w = n_w/vt;
+% C_co = n_co/vt;
+% C_co2 = n_co2/vt;
 
 % rates of reaction ( kmol.h^{-1}.kg_cat^{-1} )
 r1c = (k1*power(C_o2, c.n)*c.b1*C_ox)/(1+c.b1*C_ox);
@@ -218,19 +205,66 @@ c.U = 0.096*3600; %kJ h-1 m^-2 K^-1
 Q = c.D*pi*c.U*(y(6)-c.Tw); %(y(6)-c.Tw); % Q=A*U*(T-Tw), kJ h-1 m-1
 
 % wall area
-c.S = pi * c.D * z; % m^2
+c.S_w = pi * c.D * z; % m^2
 
 % temperature
 % dydz(6) = ((-Q-(y(1)*c.H1+y(2)*c.H2+y(3)*c.H3+y(4)*c.H4+y(5)*c.H5))*c.eps*c.A)/(c.mt*cp(y(6)));
 
 dydz(6) = -Q-(c.H1*dydz(1) + c.H2*dydz(2) + c.H3*dydz(3) + c.H4*dydz(4) + c.H5*dydz(5))/(c.f.massFlow*cp(y(6)));
 
-% dydz(6) = -(c.H1*dydz(1) + c.H2*dydz(2) + c.H3*dydz(3) + c.H4*dydz(4) + c.H5*dydz(5))/(cp(y(6))*c.f.massFlow+c.U*c.S);
+% dydz(6) = -(c.H1*dydz(1) + c.H2*dydz(2) + c.H3*dydz(3) + c.H4*dydz(4) + c.H5*dydz(5))/(cp(y(6))*c.f.massFlow+c.U*c.S_w);
 
 % pressure
 dydz(7) = 1.3*power(10,5)-(c.rho_c*(1-c.eps)*c.g*z);
 end
 
+% material balances
+function [T] = reactorMB(T, xi, vt)
+
+% inputs
+%   T   (table)
+%       rows: components j
+%       cols: properties
+%           n0  initial molar flow
+%                   kmol.h^{-1}
+%   xi  (vector) extents of reaction i (1-5)
+%           kmol.h^{-1}
+%   vt  total volumetric flow rate
+%           m^3.h^{-1}
+%
+% outputs
+%   T   (table)
+%       rows: components j
+%       cols: properties
+%           n0  initial molar flow
+%                   kmol.h^{-1}
+%           n   molar flow
+%                   kmol.h^{-1}
+%           C   concentration
+%                   kmol.m^{-3}
+
+% material balances
+T.n = zeros(7,1);
+T.Properties.VariableUnits{'n'} = 'kmol.h^{-1}';
+T{'OX','n'} = T{'OX','n0'} - xi(1) - xi(2) - xi(3);
+T{'O2','n'} = T{'O2','n0'} - 3*xi(1) - 6.5*xi(2) - 10.5*xi(3) - 3.5*xi(4) - 7.5*xi(5);
+T{'PA','n'} = T{'PA','n0'} + xi(1) - xi(4) - xi(5);
+T{'H2O','n'} = T{'H2O','n0'} + 3*xi(1) + 5*xi(2) + 5*xi(3) + 2*xi(4) + 2*xi(5);
+T{'CO','n'} = T{'CO','n0'} + 8*xi(2) + 8*xi(4);
+T{'CO2','n'} = T{'CO2','n0'} + 8*xi(3) + 8*xi(5);
+T{'N2','n'} = T{'N2','n0'};
+
+% total molar flowrate [ kmol.h^{-1} ]
+nt = T{'OX','n0'} + T{'O2','n0'} + T{'N2','n0'} + 5.5*y(2) + 1.5*y(3) + 5.5*y(4) + 1.5*y(5);
+% nt = sum(T.n); % alt. approach
+
+% concentration calculations
+T.C = T.n ./ vt;
+T.Properties.VariableUnits{'C'} = 'kmol.h^{-1}';
+
+end
+
+% figure formatting
 function [] = formatFig(w,h)
 fig = gcf;
 fig.PaperOrientation = 'landscape';
