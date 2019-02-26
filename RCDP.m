@@ -120,29 +120,19 @@ function dydz = odefun(z, y)
 % bring in constants
 global c
 
-% kinetic constant ( h^{-1}.kmol^{1-n}.m^{3n}.kg_cat^{-1} )
-k1 = exp((c.RX.lnk0(1))-(c.RX.ER(1)/y(6)));
-k2 = exp((c.RX.lnk0(2))-(c.RX.ER(2)/y(6)));
-k3 = exp((c.RX.lnk0(3))-(c.RX.ER(3)/y(6)));
-k4 = exp((c.RX.lnk0(4))-(c.RX.ER(4)/y(6)));
-k5 = exp((c.RX.lnk0(5))-(c.RX.ER(5)/y(6)));
+% kinetic constant
+k = exp( c.RX.lnk0 - c.RX.ER/y(6) ); % h^{-1}.kmol^{1-n}.m^{3n}.kg_cat^{-1}
 
 % do material balances
 S = reactorMB(c.S, y(1:5), y(6), y(7));
 
 % rates of reaction ( kmol.h^{-1}.kg_cat^{-1} )
-r1c = (k1*power(S{'O2','C'}, c.n)*c.b1*S{'OX','C'})/(1+c.b1*S{'OX','C'});
-r2c = (k2*power(S{'O2','C'}, c.n)*c.b2*S{'OX','C'})/(1+c.b2*S{'OX','C'});
-r3c = (k3*power(S{'O2','C'}, c.n)*c.b2*S{'OX','C'})/(1+c.b2*S{'OX','C'});
-r4c = (k4*power(S{'O2','C'}, c.n)*S{'PA','C'}*c.b3);
-r5c = (k5*power(S{'O2','C'}, c.n)*S{'PA','C'}*c.b3);
+r_c(1)   = ( k(1)   * S{'O2','C'}^c.n * c.b1 * S{'OX','C'} )/( 1 + c.b1 * S{'OX','C'} );
+r_c(2:3) = ( k(2:3) * S{'O2','C'}^c.n * c.b2 * S{'OX','C'} )/( 1 + c.b2 * S{'OX','C'} );
+r_c(4:5) = ( k(4:5) * S{'O2','C'}^c.n * S{'PA','C'} * c.b3 );
 
 % rates of reaction ( kmol.h^{-1} )
-r1 = r1c * c.rho_c * (1-c.eps)/c.eps;
-r2 = r2c * c.rho_c * (1-c.eps)/c.eps;
-r3 = r3c * c.rho_c * (1-c.eps)/c.eps;
-r4 = r4c * c.rho_c * (1-c.eps)/c.eps;
-r5 = r5c * c.rho_c * (1-c.eps)/c.eps;
+r = r_c * c.rho_c * (1-c.eps)/c.eps;
 
 % initialising array for derivatives
 dydz = zeros(7,1);
@@ -154,11 +144,7 @@ c.dkgcdz = c.A * (1-c.eps) * c.rho_c;
 c.A_v = c.eps * c.A;
 
 % extents [ kmol.h^{-1}.m^{-1} ]
-dydz(1) = r1 * c.eps * c.A;
-dydz(2) = r2 * c.eps * c.A;
-dydz(3) = r3 * c.eps * c.A;
-dydz(4) = r4 * c.eps * c.A;
-dydz(5) = r5 * c.eps * c.A;
+dydz(1:5) = r * c.eps * c.A;
 
 % heat capacity constants
 c.a = 1.0310; 
@@ -175,7 +161,6 @@ c.Tw = 610; % K
 % wall heat transfer coefficient
 c.U = 0.096*60^2; %kJ h-1 m^-2 K^-1
 
-c.U = 0.096*3600; %kJ h-1 m^-2 K^-1
 Q = c.D*pi*c.U*(y(6)-c.Tw); %(y(6)-c.Tw); % Q=A*U*(T-Tw), kJ h-1 m-1
 
 % wall area
@@ -222,13 +207,13 @@ global c
 % material balances
 S.n = zeros(7,1);
 S.Properties.VariableUnits{'n'} = 'kmol.h^{-1}';
-S{'OX','n'} = S{'OX','n0'} - xi(1) - xi(2) - xi(3);
-S{'O2','n'} = S{'O2','n0'} - 3*xi(1) - 6.5*xi(2) - 10.5*xi(3) - 3.5*xi(4) - 7.5*xi(5);
-S{'PA','n'} = S{'PA','n0'} + xi(1) - xi(4) - xi(5);
+S{'OX','n'}  = S{'OX','n0'} - xi(1) - xi(2) - xi(3);
+S{'O2','n'}  = S{'O2','n0'} - 3*xi(1) - 6.5*xi(2) - 10.5*xi(3) - 3.5*xi(4) - 7.5*xi(5);
+S{'PA','n'}  = S{'PA','n0'} + xi(1) - xi(4) - xi(5);
 S{'H2O','n'} = S{'H2O','n0'} + 3*xi(1) + 5*xi(2) + 5*xi(3) + 2*xi(4) + 2*xi(5);
-S{'CO','n'} = S{'CO','n0'} + 8*xi(2) + 8*xi(4);
+S{'CO','n'}  = S{'CO','n0'} + 8*xi(2) + 8*xi(4);
 S{'CO2','n'} = S{'CO2','n0'} + 8*xi(3) + 8*xi(5);
-S{'N2','n'} = S{'N2','n0'};
+S{'N2','n'}  = S{'N2','n0'};
 
 % total molar flowrate [ kmol.h^{-1} ]
 nt = S{'OX','n0'} + S{'O2','n0'} + S{'N2','n0'} + 5.5*xi(2) + 1.5*xi(3) + 5.5*xi(4) + 1.5*xi(5);
@@ -240,7 +225,6 @@ vt = (nt * (c.R*T)/P) * 10^3; % m^3.h^{-1}
 % concentration calculations
 S.C = S.n ./ vt;
 S.Properties.VariableUnits{'C'} = 'kmol.m^{-3}';
-
 end
 
 % figure formatting
