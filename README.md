@@ -1,8 +1,8 @@
 # CE2-03-2 Reactor and Controller Design Project
 
-## Notes
+## Notes
 
-- `.slx` files are binary, so `git diff` doesn't work---[use Simulink to compare](https://uk.mathworks.com/help/simulink/ug/merge-simulink-models-from-the-comparison-report.html)
+- `.slx` files are binary, so `git diff` doesn't work—[use Simulink to compare](https://uk.mathworks.com/help/simulink/ug/merge-simulink-models-from-the-comparison-report.html)
 
 ## Useful links
 
