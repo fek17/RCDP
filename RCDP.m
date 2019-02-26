@@ -147,11 +147,18 @@ C_co = n_co/vt;
 C_co2 = n_co2/vt;
 
 % rates of reaction ( kmol.h^{-1}.kg_cat^{-1} )
-r1 = (k1*power(C_o2, c.n)*c.b1*C_ox)/(1+c.b1*C_ox);
-r2 = (k2*power(C_o2, c.n)*c.b2*C_ox)/(1+c.b2*C_ox);
-r3 = (k3*power(C_o2, c.n)*c.b2*C_ox)/(1+c.b2*C_ox);
-r4 = (k4*power(C_o2, c.n)*C_pa*c.b3);
-r5 = (k5*power(C_o2, c.n)*C_pa*c.b3);
+r1c = (k1*power(C_o2, c.n)*c.b1*C_ox)/(1+c.b1*C_ox);
+r2c = (k2*power(C_o2, c.n)*c.b2*C_ox)/(1+c.b2*C_ox);
+r3c = (k3*power(C_o2, c.n)*c.b2*C_ox)/(1+c.b2*C_ox);
+r4c = (k4*power(C_o2, c.n)*C_pa*c.b3);
+r5c = (k5*power(C_o2, c.n)*C_pa*c.b3);
+
+% rates of reaction ( kmol.h^{-1} )
+r1 = r1c * c.rho_c * (1-c.eps)/c.eps;
+r2 = r2c * c.rho_c * (1-c.eps)/c.eps;
+r3 = r3c * c.rho_c * (1-c.eps)/c.eps;
+r4 = r4c * c.rho_c * (1-c.eps)/c.eps;
+r5 = r5c * c.rho_c * (1-c.eps)/c.eps;
 
 % initialising array for derivatives
 dydz = zeros(7,1);
@@ -163,11 +170,11 @@ c.dkgcdz = c.A * (1-c.eps) * c.rho_c;
 c.A_v = c.eps * c.A;
 
 % extents [ kmol.h^{-1}.m^{-1} ]
-dydz(1) = r1 * c.A * c.rho_c * (1-c.eps);
-dydz(2) = r2 * c.A * c.rho_c * (1-c.eps);
-dydz(3) = r3 * c.A * c.rho_c * (1-c.eps);
-dydz(4) = r4 * c.A * c.rho_c * (1-c.eps);
-dydz(5) = r5 * c.A * c.rho_c * (1-c.eps);
+dydz(1) = r1 * c.eps * c.A;
+dydz(2) = r2 * c.eps * c.A;
+dydz(3) = r3 * c.eps * c.A;
+dydz(4) = r4 * c.eps * c.A;
+dydz(5) = r5 * c.eps * c.A;
 
 % enthalpies of reaction (kJ/kmol)
 c.H1 = -1283000; 
