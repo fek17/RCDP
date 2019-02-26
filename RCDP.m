@@ -138,23 +138,15 @@ k3 = exp((c.lnk0_3)-(c.ER_3/y(6)));
 k4 = exp((c.lnk0_4)-(c.ER_4/y(6)));
 k5 = exp((c.lnk0_5)-(c.ER_5/y(6)));
 
-% volumetric flowrate
-vt = (nt * (c.R*y(6))/y(7)) * 10^3; % m^3.h^{-1}
-
-% % concentration calculations
-% C_ox = n_ox/vt;
-% C_o2 = n_o2/vt;
-% C_pa = n_pa/vt;
-% C_w = n_w/vt;
-% C_co = n_co/vt;
-% C_co2 = n_co2/vt;
+% do material balances
+S = reactorMB(c.S, y(1:5), y(6), y(7));
 
 % rates of reaction ( kmol.h^{-1}.kg_cat^{-1} )
-r1c = (k1*power(C_o2, c.n)*c.b1*C_ox)/(1+c.b1*C_ox);
-r2c = (k2*power(C_o2, c.n)*c.b2*C_ox)/(1+c.b2*C_ox);
-r3c = (k3*power(C_o2, c.n)*c.b2*C_ox)/(1+c.b2*C_ox);
-r4c = (k4*power(C_o2, c.n)*C_pa*c.b3);
-r5c = (k5*power(C_o2, c.n)*C_pa*c.b3);
+r1c = (k1*power(S{'O2','C'}, c.n)*c.b1*S{'OX','C'})/(1+c.b1*S{'OX','C'});
+r2c = (k2*power(S{'O2','C'}, c.n)*c.b2*S{'OX','C'})/(1+c.b2*S{'OX','C'});
+r3c = (k3*power(S{'O2','C'}, c.n)*c.b2*S{'OX','C'})/(1+c.b2*S{'OX','C'});
+r4c = (k4*power(S{'O2','C'}, c.n)*S{'PA','C'}*c.b3);
+r5c = (k5*power(S{'O2','C'}, c.n)*S{'PA','C'}*c.b3);
 
 % rates of reaction ( kmol.h^{-1} )
 r1 = r1c * c.rho_c * (1-c.eps)/c.eps;
@@ -219,21 +211,21 @@ dydz(7) = 1.3*power(10,5)-(c.rho_c*(1-c.eps)*c.g*z);
 end
 
 % material balances
-function [T] = reactorMB(T, xi, vt)
+function [S] = reactorMB(S, xi, T, P)
 
 % inputs
-%   T   (table)
+%   S   (table)
 %       rows: components j
 %       cols: properties
 %           n0  initial molar flow
 %                   kmol.h^{-1}
 %   xi  (vector) extents of reaction i (1-5)
 %           kmol.h^{-1}
-%   vt  total volumetric flow rate
-%           m^3.h^{-1}
+%   T
+%   P
 %
 % outputs
-%   T   (table)
+%   S   (table)
 %       rows: components j
 %       cols: properties
 %           n0  initial molar flow
@@ -243,24 +235,29 @@ function [T] = reactorMB(T, xi, vt)
 %           C   concentration
 %                   kmol.m^{-3}
 
+global c
+
 % material balances
-T.n = zeros(7,1);
-T.Properties.VariableUnits{'n'} = 'kmol.h^{-1}';
-T{'OX','n'} = T{'OX','n0'} - xi(1) - xi(2) - xi(3);
-T{'O2','n'} = T{'O2','n0'} - 3*xi(1) - 6.5*xi(2) - 10.5*xi(3) - 3.5*xi(4) - 7.5*xi(5);
-T{'PA','n'} = T{'PA','n0'} + xi(1) - xi(4) - xi(5);
-T{'H2O','n'} = T{'H2O','n0'} + 3*xi(1) + 5*xi(2) + 5*xi(3) + 2*xi(4) + 2*xi(5);
-T{'CO','n'} = T{'CO','n0'} + 8*xi(2) + 8*xi(4);
-T{'CO2','n'} = T{'CO2','n0'} + 8*xi(3) + 8*xi(5);
-T{'N2','n'} = T{'N2','n0'};
+S.n = zeros(7,1);
+S.Properties.VariableUnits{'n'} = 'kmol.h^{-1}';
+S{'OX','n'} = S{'OX','n0'} - xi(1) - xi(2) - xi(3);
+S{'O2','n'} = S{'O2','n0'} - 3*xi(1) - 6.5*xi(2) - 10.5*xi(3) - 3.5*xi(4) - 7.5*xi(5);
+S{'PA','n'} = S{'PA','n0'} + xi(1) - xi(4) - xi(5);
+S{'H2O','n'} = S{'H2O','n0'} + 3*xi(1) + 5*xi(2) + 5*xi(3) + 2*xi(4) + 2*xi(5);
+S{'CO','n'} = S{'CO','n0'} + 8*xi(2) + 8*xi(4);
+S{'CO2','n'} = S{'CO2','n0'} + 8*xi(3) + 8*xi(5);
+S{'N2','n'} = S{'N2','n0'};
 
 % total molar flowrate [ kmol.h^{-1} ]
-nt = T{'OX','n0'} + T{'O2','n0'} + T{'N2','n0'} + 5.5*y(2) + 1.5*y(3) + 5.5*y(4) + 1.5*y(5);
-% nt = sum(T.n); % alt. approach
+nt = S{'OX','n0'} + S{'O2','n0'} + S{'N2','n0'} + 5.5*xi(2) + 1.5*xi(3) + 5.5*xi(4) + 1.5*xi(5);
+% nt = sum(S.n); % alt. approach
+
+% volumetric flowrate
+vt = (nt * (c.R*T)/P) * 10^3; % m^3.h^{-1}
 
 % concentration calculations
-T.C = T.n ./ vt;
-T.Properties.VariableUnits{'C'} = 'kmol.h^{-1}';
+S.C = S.n ./ vt;
+S.Properties.VariableUnits{'C'} = 'kmol.m^{-3}';
 
 end
 
