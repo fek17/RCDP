@@ -2,8 +2,10 @@
 clear, clc, close all
 format long
 
+% globalise constants, variables & temporary things
+global c v t
+
 %% constants
-global c
 
 % diameter of reactor 
 c.D = 0.025;        % m
@@ -12,7 +14,9 @@ c.A = pi*c.D^2/4;   % m^2
 % acceleration due to gravity
 c.g = 9.81;         % m.s^-2
 % initial pressure
-c.Po = 1.3*10^5;    % Pa
+c.P0 = 1.3*10^5;    % Pa
+% initial temperature
+c.T0 = 600;         % K
 % ideal gas constant
 c.R = 8.3144598;    % J.K^{-1}.mol^{-1}
 
@@ -82,13 +86,23 @@ c.n_co2i = 0;
 %% solver
 
 % height of reactor
-zspan = 0:0.1:10;           % m
+t.zspan = 0:0.1:10;           % m
 
 % initial conditions
-y0 = [0; 0; 0; 0; 0; 600; c.Po]; % 5x extents [kmol.h^{-1}], temperature [K], pressure [Pa]
+t.y0 = [0; 0; 0; 0; 0; c.T0; c.P0]; 
 
+% create empty variables table
+v = array2table(zeros(numel(t.zspan),7));
+v.Properties.VariableNames = {'xi_1'        'xi_2'        'xi_3'        'xi_4'        'xi_5'        'T' 'P' };
+v.Properties.VariableUnits = {'kmol.h^{-1}' 'kmol.h^{-1}' 'kmol.h^{-1}' 'kmol.h^{-1}' 'kmol.h^{-1}' 'K' 'Pa'};
+
+c.count = 0;
 % solve odes
-[z, y] = ode15s(@odefun, zspan, y0);
+[t.z, t.y] = ode15s(@odefun, t.zspan, t.y0);
+
+% dump output in table
+v(:,1:7) = array2table(t.y);
+v.z = t.z;
 
 %% plot
 
@@ -96,11 +110,11 @@ figure
 yyaxis left
 hold on
 for i = 1:5
-    plot(z,y(:,i),'DisplayName',sprintf('\\xi_%u',i))
+    plot(v.z,t.y(:,i),'DisplayName',sprintf('\\xi_%u',i))
 end
 ylabel('\xi_i');
 yyaxis right
-plot(z,y(:,6),'DisplayName','T / K')
+plot(v.z,t.y(:,6),'DisplayName','T / K')
 ylabel('T / K');
 legend('Location','east');
 
@@ -114,6 +128,8 @@ function dydz = odefun(z, y)
 
 % bring in constants
 global c
+
+c.count = c.count+1;
 
 % kinetic constant ( h^{-1}.kmol^{1-n}.m^{3n}.kg_cat^{-1} )
 k1 = exp((c.lnk0_1)-(c.ER_1/y(6)));
