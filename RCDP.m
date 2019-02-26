@@ -119,12 +119,15 @@ function dydz = odefun(z, y)
 
 % bring in constants
 global c
+xi = y(1:5);
+T = y(6);
+P = y(7);
 
 % kinetic constant
-k = exp( c.RX.lnk0 - c.RX.ER/y(6) ); % h^{-1}.kmol^{1-n}.m^{3n}.kg_cat^{-1}
+k = exp( c.RX.lnk0 - c.RX.ER/T ); % h^{-1}.kmol^{1-n}.m^{3n}.kg_cat^{-1}
 
 % do material balances
-S = reactorMB(c.S, y(1:5), y(6), y(7));
+S = reactorMB(c.S, xi, T, P);
 
 % rates of reaction ( kmol.h^{-1}.kg_cat^{-1} )
 r_c(1)   = ( k(1)   * S{'O2','C'}^c.n * c.b1 * S{'OX','C'} )/( 1 + c.b1 * S{'OX','C'} );
@@ -134,9 +137,6 @@ r_c(4:5) = ( k(4:5) * S{'O2','C'}^c.n * S{'PA','C'} * c.b3 );
 % rates of reaction ( kmol.h^{-1} )
 r = r_c * c.rho_c * (1-c.eps)/c.eps;
 
-% initialising array for derivatives
-dydz = zeros(7,1);
-
 % d(kg_c)/dz
 c.dkgcdz = c.A * (1-c.eps) * c.rho_c;
 
@@ -144,7 +144,7 @@ c.dkgcdz = c.A * (1-c.eps) * c.rho_c;
 c.A_v = c.eps * c.A;
 
 % extents [ kmol.h^{-1}.m^{-1} ]
-dydz(1:5) = r * c.eps * c.A;
+dxidz = r * c.eps * c.A;
 
 % heat capacity constants
 c.a = 1.0310; 
@@ -161,20 +161,23 @@ c.Tw = 610; % K
 % wall heat transfer coefficient
 c.U = 0.096*60^2; %kJ h-1 m^-2 K^-1
 
-Q = c.D*pi*c.U*(y(6)-c.Tw); %(y(6)-c.Tw); % Q=A*U*(T-Tw), kJ h-1 m-1
+Q = c.D*pi*c.U*(T-c.Tw); %(T-c.Tw); % Q=A*U*(T-Tw), kJ h-1 m-1
 
 % wall area
 c.S_w = pi * c.D * z; % m^2
 
 % temperature
-% dydz(6) = ((-Q-(y(1)*c.RX.h(1)+y(2)*c.RX.h(2)+y(3)*c.RX.h(3)+y(4)*c.RX.h(4)+y(5)*c.RX.h(5)))*c.eps*c.A)/(c.mt*cp(y(6)));
+% dydz(6) = ((-Q-(xi(1)*c.RX.h(1)+xi(2)*c.RX.h(2)+xi(3)*c.RX.h(3)+xi(4)*c.RX.h(4)+xi(5)*c.RX.h(5)))*c.eps*c.A)/(c.mt*cp(T));
 
-dydz(6) = -Q-(c.RX.h(1)*dydz(1) + c.RX.h(2)*dydz(2) + c.RX.h(3)*dydz(3) + c.RX.h(4)*dydz(4) + c.RX.h(5)*dydz(5))/(c.f.massFlow*cp(y(6)));
+dTdz = -Q-(c.RX.h(1)*dxidz(1) + c.RX.h(2)*dxidz(2) + c.RX.h(3)*dxidz(3) + c.RX.h(4)*dxidz(4) + c.RX.h(5)*dxidz(5))/(c.f.massFlow*cp(T));
 
-% dydz(6) = -(c.RX.h(1)*dydz(1) + c.RX.h(2)*dydz(2) + c.RX.h(3)*dydz(3) + c.RX.h(4)*dydz(4) + c.RX.h(5)*dydz(5))/(cp(y(6))*c.f.massFlow+c.U*c.S_w);
+% dydz(6) = -(c.RX.h(1)*dxidz(1) + c.RX.h(2)*dxidz(2) + c.RX.h(3)*dxidz(3) + c.RX.h(4)*dxidz(4) + c.RX.h(5)*dxidz(5))/(cp(T)*c.f.massFlow+c.U*c.S_w);
 
 % pressure
-dydz(7) = 1.3*power(10,5)-(c.rho_c*(1-c.eps)*c.g*z);
+dPdz = 1.3*power(10,5)-(c.rho_c*(1-c.eps)*c.g*z);
+
+% output derivatives
+dydz = [ dxidz dTdz dPdz ]';
 end
 
 % material balances
@@ -188,8 +191,10 @@ function [S] = reactorMB(S, xi, T, P)
 %                   kmol.h^{-1}
 %   xi  (vector) extents of reaction i (1-5)
 %           kmol.h^{-1}
-%   T
-%   P
+%   T   temperature
+%           K
+%   P   pressure
+%           Pa
 %
 % outputs
 %   S   (table)
