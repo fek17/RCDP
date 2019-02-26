@@ -82,7 +82,7 @@ c.n_co2i = 0;
 %% solver
 
 % height of reactor
-zspan = 0:0.001:10;           % m
+zspan = 0:0.1:10;           % m
 
 % initial conditions
 y0 = [0; 0; 0; 0; 0; 600; c.Po]; % 5x extents [kmol.h^{-1}], temperature [K], pressure [Pa]
@@ -183,20 +183,20 @@ c.c = 2.881e-7;
 c.d = -1.025e-10;
 
 % heat capacity function
-cp = @(T) c.a + c.b*T + c.c*(power(T,2)) + c.d*(power(T,3)); % kJ kg^-1 K^-1
+cp = @(T) c.a + c.b*T + c.c*T^2 + c.d*T^3; % kJ kg^-1 K^-1
 
-% energy balance 
+% wall temp,
+c.Tw = 610; % K
 
-c.Tw = 610; % wall temp, K
+% wall heat transfer coefficient
+c.U = 0.096*60^2; %kJ h-1 m^-2 K^-1
 
-c.U = 0.096*3600; %kJ h-1 m^-2 K^-1
-Q = c.D*pi*c.U; %(y(6)-c.Tw); % Q=A*U*(T-Tw), kJ h-1 m-1
+% wall area
+c.S = pi * c.D * z; % m^2
 
 % temperature
-
 % dydz(6) = ((-Q-(y(1)*c.H1+y(2)*c.H2+y(3)*c.H3+y(4)*c.H4+y(5)*c.H5))*c.eps*c.A)/(c.mt*cp(y(6)));
-
-dydz(6) = -(c.H1*dydz(1) + c.H2*dydz(2) + c.H3*dydz(3) + c.H4*dydz(4) + c.H5*dydz(5))/(c.f.massFlow*cp(y(6))+Q);
+dydz(6) = -(c.H1*dydz(1) + c.H2*dydz(2) + c.H3*dydz(3) + c.H4*dydz(4) + c.H5*dydz(5))/(cp(y(6))*c.f.massFlow+c.U*c.S);
 
 % pressure
 dydz(7) = 1.3*power(10,5)-(c.rho_c*(1-c.eps)*c.g*z);
