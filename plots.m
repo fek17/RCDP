@@ -1,6 +1,6 @@
 %% export?
 global t
-t.export = true;
+t.export = false;
 
 %% extents of reaction
 figure
@@ -8,7 +8,7 @@ yyaxis left
 hold on
 for i = 1:size(c.RX,1)
     t.this = sprintf('xi_%u',i);
-    plot(v.z,v.(t.this),'DisplayName',t.this)
+    plot(v.z,v.(t.this),'DisplayName',['\' t.this])
 end
 ylabel('\xi_i / kmol.h^{-1}');
 xlabel('z / m');
@@ -19,13 +19,16 @@ legend('Location','east');
 
 figExport(12,12,'overview-extents');
 
-%% molar flows
+%% molar flows (except inert N2)
 
 figure
 yyaxis left
 hold on
 for i = 1:numel(c.species)
-    plot(v.z,v.(['n_' c.species{i}]),'DisplayName',['n_{' c.species{i} '}'])
+    % remove inert
+    if strcmp(c.species{i},'N2') == false
+        plot(v.z,v.(['n_' c.species{i}]),'DisplayName',['n_{' c.species{i} '}'])
+    end
 end
 ylabel('n_j / kmol.h^{-1}');
 xlabel('z / m');
