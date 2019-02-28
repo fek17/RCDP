@@ -43,7 +43,8 @@ c.RX.Properties.VariableUnits = {'dimensionless','K','kJ.kmol^{-1}'};
 %% species
 
 % setup table
-c.S = table('RowNames',{'OX' 'PA' 'CO2' 'CO' 'H2O' 'O2' 'N2'});
+c.species = {'OX' 'PA' 'CO2' 'CO' 'H2O' 'O2' 'N2'};
+c.S = table('RowNames',c.species);
 
 % molecular weights
 c.S.Mw = [106.1602 148.1100 44.0095 28.0101 18.0153 31.9988 28.0134]';
@@ -94,6 +95,26 @@ v.Properties.VariableUnits = {'kmol.h^{-1}' 'kmol.h^{-1}' 'kmol.h^{-1}' 'kmol.h^
 v(:,1:7) = array2table(t.y);
 v.z = t.z;
 
+%% calculations
+
+% do material balances for each row of table
+for i = 1:size(v,1)
+    t.S = reactorMB(c.S, v{i,{'xi_1' 'xi_2' 'xi_3' 'xi_4' 'xi_5'}}, v.T(i), v.P(i));
+    
+    % initialise columns for each molar flow
+    if i == 1
+        for j = 1:numel(c.species)
+            % not using nasty eval here :)
+            v.(sprintf('n_%s',c.species{j})) = zeros(101,1);
+        end
+    end
+    
+    % store molar flows in table
+    for j = 1:numel(c.species)
+        v.(sprintf('n_%s',c.species{j}))(i) = t.S{c.species{j},'n'};
+    end
+    
+end
 %% plot
 
 figure
@@ -111,7 +132,7 @@ legend('Location','east');
 
 % export
 formatFig(12,12);
-print(gcf, '-dpdf', [pwd '/graphs/overview.pdf']);
+% print(gcf, '-dpdf', [pwd '/graphs/overview.pdf']);
 
 %% function space
 
