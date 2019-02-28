@@ -97,20 +97,21 @@ v.z = t.z;
 
 %% calculations
 
-% do material balances for each row of table
+% molar flows
 for i = 1:size(v,1)
-    t.S = reactorMB(c.S, v{i,{'xi_1' 'xi_2' 'xi_3' 'xi_4' 'xi_5'}}, v.T(i), v.P(i));
     
-    % initialise columns for each molar flow
-    if i == 1
-        for j = 1:numel(c.species)
+    % material balances @ this position in reactor
+    t.S = reactorMB(c.S, v{i,{'xi_1' 'xi_2' 'xi_3' 'xi_4' 'xi_5'}}, v.T(i), v.P(i));
+
+    % store molar flows in table
+    for j = 1:numel(c.species)
+        
+        % initialise columns on first run
+        if i == 1
             % not using nasty eval here :)
             v.(sprintf('n_%s',c.species{j})) = zeros(101,1);
         end
-    end
-    
-    % store molar flows in table
-    for j = 1:numel(c.species)
+        
         v.(sprintf('n_%s',c.species{j}))(i) = t.S{c.species{j},'n'};
     end
     
