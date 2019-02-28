@@ -1,5 +1,9 @@
-%% export?
-global t
+%% CE2-03-2 Group 6
+%  Plots
+
+% requires the global variable v for values to plot
+
+% export?
 t.export = false;
 
 %% extents of reaction
