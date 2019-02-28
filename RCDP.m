@@ -116,24 +116,9 @@ for i = 1:size(v,1)
     end
     
 end
-%% plot
 
-figure
-yyaxis left
-hold on
-for i = 1:5
-    plot(v.z,t.y(:,i),'DisplayName',sprintf('\\xi_%u',i))
-end
-ylabel('\xi_i / kmol.h^{-1}');
-xlabel('z / m');
-yyaxis right
-plot(v.z,t.y(:,6),'DisplayName','T / K')
-ylabel('T / K');
-legend('Location','east');
-
-% export
-formatFig(12,12);
-% print(gcf, '-dpdf', [pwd '/graphs/overview.pdf']);
+% yield of PA wrt. OX
+v.Y_PA_OX = v.n_PA ./ v.n_OX(1);
 
 %% function space
 
