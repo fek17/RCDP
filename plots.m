@@ -1,3 +1,7 @@
+%% export?
+global t
+t.export = true;
+
 %% extents of reaction
 figure
 yyaxis left
@@ -13,9 +17,7 @@ plot(v.z,t.y(:,6),'DisplayName','T / K')
 ylabel('T / K');
 legend('Location','east');
 
-% export
-formatFig(12,12);
-% print(gcf, '-dpdf', [pwd '/graphs/overview-extents.pdf']);
+figExport(12,12,'overview-extents');
 
 %% molar flows
 
@@ -32,9 +34,7 @@ plot(v.z,t.y(:,6),'DisplayName','T / K')
 ylabel('T / K');
 legend('Location','east');
 
-% export
-formatFig(12,12);
-% print(gcf, '-dpdf', [pwd '/graphs/overview-molar-flows.pdf']);
+figExport(12,12,'overview-molar-flows');
 
 %% yield of PA wrt OX
 
@@ -42,3 +42,72 @@ figure
 plot(v.z,v.Y_PA_OX)
 ylabel('Y_{PA,OX}^{OV}');
 xlabel('z / m');
+
+figExport(8,8,'yield-PA-OX');
+
+%% temperature
+
+figure
+plot(v.z,v.T)
+ylabel('T / K');
+xlabel('z / m');
+
+figExport(8,8,'temp');
+
+%% pressure
+
+figure
+plot(v.z,v.P)
+ylabel('P / Pa');
+xlabel('z / m');
+
+figExport(8,8,'pressure');
+
+%% OX conversion
+
+figure
+plot(v.z,v.f_OX)
+ylabel('f_{OX}^{OV}');
+xlabel('z / m');
+
+figExport(8,8,'conversion-OX');
+
+%% selectivity of (PA, CO) wrt. OX
+
+figure
+yyaxis left
+plot(v.z,v.S_PA_OX)
+ylabel('S_{PA,OX}');
+xlabel('z / m');
+yyaxis right
+plot(v.z,v.S_CO_OX)
+ylabel('S_{CO,OX}');
+
+figExport(8,8,'selectivity-PA-CO-OX');
+
+%% ratio CO/CO2
+
+figure
+plot(v.z,v.CO_CO2)
+ylabel('n_{CO}/n_{CO2}');
+xlabel('z / m');
+
+figExport(8,8,'ratio-CO-CO2');
+
+%% figure formatting
+
+function figExport(w,h,name)
+global t
+formatFig(w,h)
+if t.export == true
+    print(gcf, '-dpdf', [pwd '/graphs/' name '.pdf']);
+end
+end
+
+function [] = formatFig(w,h)
+fig = gcf;
+fig.PaperOrientation = 'landscape';
+fig.PaperSize = [w h];
+fig.PaperPosition = [0 0 w h];
+fig.Renderer = 'Painters'; % for 3D plots
+end

@@ -118,7 +118,19 @@ for i = 1:size(v,1)
 end
 
 % yield of PA wrt. OX
-v.Y_PA_OX = v.n_PA ./ v.n_OX(1);
+v.Y_PA_OX = v.n_PA / v.n_OX(1);
+
+% OX conversion
+v.f_OX = (v.n_OX(1) - v.n_OX)/v.n_OX(1);
+
+% selectivity of PA (wrt. OX *assumption*)
+v.S_PA_OX = v.n_PA ./ (v.n_OX(1) - v.n_OX);
+
+% selectivity of CO (wrt. OX *assumption*)
+v.S_CO_OX = v.n_CO ./ (v.n_OX(1) - v.n_OX);
+
+% CO/CO2 fraction
+v.CO_CO2 = v.n_CO ./ v.n_CO2;
 
 %% function space
 
@@ -238,13 +250,4 @@ vt = (nt * (c.R*T)/P) * 10^3; % m^3.h^{-1}
 % concentration calculations
 S.C = S.n ./ vt;
 S.Properties.VariableUnits{'C'} = 'kmol.m^{-3}';
-end
-
-% figure formatting
-function [] = formatFig(w,h)
-fig = gcf;
-fig.PaperOrientation = 'landscape';
-fig.PaperSize = [w h];
-fig.PaperPosition = [0 0 w h];
-fig.Renderer = 'Painters'; % for 3D plots
 end
