@@ -7,3 +7,4 @@
 ## Useful links
 
 - [`rcdp-equations` on Overleaf](https://www.overleaf.com/project/5c6e80e80219993c39a6dd8a)
+- [dynamically access (or create) table / struct data](https://uk.mathworks.com/help/matlab/matlab_prog/generate-field-names-from-variables.html)
