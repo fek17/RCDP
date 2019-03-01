@@ -4,8 +4,8 @@
 clear, clc, close all
 format long
 
-% constants, variables & temporary things
-global c v t
+% constants, variables, temporary & output things
+global c v t o
 
 % bring in constants.m
 constants
@@ -82,6 +82,20 @@ v.S_CO_OX = v.n_CO ./ (v.n_OX(1) - v.n_OX);
 
 % CO/CO2 fraction
 v.CO_CO2 = v.n_CO ./ v.n_CO2;
+
+%% output KPIs (for sensitivity analysis)
+
+KPI = {'Y_PA_OX' 'f_OX' 'S_PA_OX'};
+
+for i = 1:numel(KPI)
+
+    % max value & z position
+    [o.(KPI{i}).max.val, t.I_z] = max(v.(KPI{i}));
+    o.(KPI{i}).max.z = v.z(t.I_z);
+    
+    % min value & z position
+
+end
 
 %% function space
 
