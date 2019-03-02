@@ -85,6 +85,7 @@ v.CO_CO2 = v.n_CO ./ v.n_CO2;
 
 %% output KPIs (for sensitivity analysis)
 
+% define KPIs
 KPI = {'Y_PA_OX' 'f_OX' 'S_PA_OX'};
 
 for i = 1:numel(KPI)

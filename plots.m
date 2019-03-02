@@ -19,7 +19,7 @@ xlabel('z / m');
 yyaxis right
 plot(v.z,t.y(:,6),'DisplayName','T / K')
 ylabel('T / K');
-legend('Location','east');
+legend('Location','northeast');
 
 figExport(12,12,'overview-extents');
 
@@ -39,9 +39,14 @@ xlabel('z / m');
 yyaxis right
 plot(v.z,t.y(:,6),'DisplayName','T / K')
 ylabel('T / K');
-legend('Location','east');
+legend('Location','northeast');
 
 figExport(12,12,'overview-molar-flows');
+
+% log scale version
+yyaxis left
+set(gca, 'YScale', 'log');
+figExport(12,12,'overview-molar-flows-log');
 
 %% yield of PA wrt OX
 
