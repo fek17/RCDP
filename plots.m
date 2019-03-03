@@ -105,21 +105,3 @@ ylabel('n_{CO}/n_{CO2}');
 xlabel('z / m');
 
 figExport(8,8,'ratio-CO-CO2');
-
-%% figure formatting
-
-function figExport(w,h,name)
-global t
-formatFig(w,h)
-if t.export == true
-    print(gcf, '-dpdf', [pwd '/graphs/' name '.pdf']);
-end
-end
-
-function [] = formatFig(w,h)
-fig = gcf;
-fig.PaperOrientation = 'landscape';
-fig.PaperSize = [w h];
-fig.PaperPosition = [0 0 w h];
-fig.Renderer = 'Painters'; % for 3D plots
-end

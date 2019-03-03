@@ -2,6 +2,7 @@
 %  constants
 
 global c
+clear global c
 
 %% general
 

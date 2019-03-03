@@ -1,14 +1,15 @@
 %% CE2-03-2 Group 6
 %  reactor
 
-clear, clc, close all
 format long
 
 % constants, variables, temporary & output things
 global c v t o
 
-% bring in constants.m
-constants
+% bring in constants.m only if sensitivity test flag DNE or is false
+if ~isfield(c,'Canary') || c.Canary == false
+    constants
+end
 
 %% feed
 
@@ -60,13 +61,14 @@ for i = 1:size(v,1)
         % initialise columns on first run
         if i == 1
             % not using nasty eval here :)
-            v.(sprintf('n_%s',c.species{j})) = zeros(101,1);
+            v.(sprintf('n_%s',c.species{j})) = zeros(numel(t.zspan),1);
         end
         
         v.(sprintf('n_%s',c.species{j}))(i) = t.S{c.species{j},'n'};
     end
     
 end
+clear i j
 
 % yield of PA wrt. OX
 v.Y_PA_OX = v.n_PA / v.n_OX(1);
@@ -87,6 +89,7 @@ v.CO_CO2 = v.n_CO ./ v.n_CO2;
 
 % define KPIs
 KPI = {'Y_PA_OX' 'f_OX' 'S_PA_OX'};
+KPI_latex = {'Y_{PA,OX}^{OV}' 'f_{OX}^{OV}' 'S_{PA,OX}'};
 
 for i = 1:numel(KPI)
 
@@ -97,6 +100,7 @@ for i = 1:numel(KPI)
     % min value & z position
 
 end
+clear i
 
 %% function space
 
