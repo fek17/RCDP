@@ -5,6 +5,7 @@
 ## Notes
 
 - `.slx` files are binary, so `git diff` doesn't work—[use Simulink to compare](https://uk.mathworks.com/help/simulink/ug/merge-simulink-models-from-the-comparison-report.html)
+- `functions/` isn't on the path by default—but command `addpath(genpath(pwd))` will add all subfolders
 
 ## Useful links
 
