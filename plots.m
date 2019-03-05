@@ -1,6 +1,6 @@
 %% CE2-03-2 Group 6
 %  Plots
-
+addpath(genpath(pwd))
 % requires the global variable v for values to plot
 
 % export?
