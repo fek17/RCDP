@@ -114,7 +114,7 @@ T = y(6);
 P = y(7);
 
 % kinetic constant
-k = exp( c.RX.lnk0 - c.RX.ER ./ T ); % h^{-1}.kmol^{1-n}.m^{3n}.kg_cat^{-1}
+k = exp( c.RX.lnk0 - c.RX.ER/T ); % h^{-1}.kmol^{1-n}.m^{3n}.kg_cat^{-1}
 
 % do material balances
 S = reactorMB(c.S, xi, T, P);
