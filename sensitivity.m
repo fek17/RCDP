@@ -40,7 +40,11 @@ for field_ = fieldnames(c)'
             c.(field) = s.(field).real * t.r;
             
             % calculate new KPIs
-            reactor
+            try
+                reactor
+            catch ME % catch errors
+                s.(field).error = ME;
+            end
             
             % save results for each KPI
             for k_ = fieldnames(o)'
