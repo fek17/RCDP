@@ -16,6 +16,9 @@ c.A = pi*c.Dia^2/4;   % m^2
 
 %% feed
 
+% bring in variable
+c.f.massFlux = c.feedMassFlux;
+
 % total Mw of feed
 c.f.Mw = dot(c.S.x0,c.S.Mw);       % kg.kmol^{-1}
 
@@ -89,10 +92,6 @@ v.S_CO_OX = v.n_CO ./ (v.n_OX(1) - v.n_OX);
 v.CO_CO2 = v.n_CO ./ v.n_CO2;
 
 %% output KPIs (for sensitivity analysis)
-
-% define KPIs
-KPI = {'Y_PA_OX' 'f_OX' 'S_PA_OX'};
-KPI_latex = {'Y_{PA,OX}^{OV}' 'f_{OX}^{OV}' 'S_{PA,OX}'};
 
 for i = 1:numel(KPI)
 

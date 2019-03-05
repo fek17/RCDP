@@ -4,6 +4,9 @@
 clear global c
 global c
 
+% enable functions in subfolder
+addpath(genpath(pwd))
+
 %% general
 
 % diameter of reactor 
@@ -56,7 +59,7 @@ c.S{'N2','x0'} = 0.78;
 c.S{'O2','x0'} = 0.21;
 
 % feed mass flux
-c.f.massFlux = 2500;                    % kg.m^-2.h^-1
+c.feedMassFlux = 2500;                    % kg.m^-2.h^-1
 
 %% energy
 
@@ -71,3 +74,9 @@ c.Tw = 610; % K
 
 % wall heat transfer coefficient
 c.U = 0.096*60^2; %kJ h-1 m^-2 K^-1
+
+%% inputs for reactor & sensitivity
+
+% define KPIs
+KPI = {'Y_PA_OX' 'f_OX' 'S_PA_OX' 'T'};
+KPI_latex = {'Y_{PA,OX}^{OV}' 'f_{OX}^{OV}' 'S_{PA,OX}' 'T / K'};
