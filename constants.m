@@ -1,8 +1,8 @@
 %% CE2-03-2 Group 6
 %  constants
 
-global c
 clear global c
+global c
 
 %% general
 
