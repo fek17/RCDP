@@ -11,6 +11,9 @@ if ~isfield(c,'Canary') || c.Canary == false
     constants
 end
 
+% cross sectional area of reactor
+c.A = pi*c.Dia^2/4;   % m^2
+
 %% feed
 
 % total Mw of feed
@@ -36,7 +39,7 @@ t.zspan = 0:0.1:10;           % m
 t.y0 = [0; 0; 0; 0; 0; c.T0; c.P0]; 
 
 % create empty variables table
-v = array2table(zeros(numel(t.zspan),7));
+v = array2table(zeros(1,7));
 v.Properties.VariableNames = {'xi_1'        'xi_2'        'xi_3'        'xi_4'        'xi_5'        'T' 'P' };
 v.Properties.VariableUnits = {'kmol.h^{-1}' 'kmol.h^{-1}' 'kmol.h^{-1}' 'kmol.h^{-1}' 'kmol.h^{-1}' 'K' 'Pa'};
 
@@ -44,7 +47,7 @@ v.Properties.VariableUnits = {'kmol.h^{-1}' 'kmol.h^{-1}' 'kmol.h^{-1}' 'kmol.h^
 [t.z, t.y] = ode15s(@odefun, t.zspan, t.y0);
 
 % dump output in table
-v(:,1:7) = array2table(t.y);
+v(1:size(t.y,1),1:7) = array2table(t.y);
 v.z = t.z;
 
 %% calculations
@@ -139,10 +142,10 @@ dxidz = r * c.eps * c.A;
 % heat capacity function
 cp = @(T) c.a + c.b*T + c.c*T^2 + c.d*T^3; % kJ kg^-1 K^-1
 
-Q = c.D*pi*c.U*(T-c.Tw); %(T-c.Tw); % Q=A*U*(T-Tw), kJ h-1 m-1
+Q = c.Dia*pi*c.U*(T-c.Tw); %(T-c.Tw); % Q=A*U*(T-Tw), kJ h-1 m-1
 
 % wall area
-c.S_w = pi * c.D * z; % m^2
+c.S_w = pi * c.Dia * z; % m^2
 
 % temperature
 % dydz(6) = ((-Q-(xi(1)*c.RX.h(1)+xi(2)*c.RX.h(2)+xi(3)*c.RX.h(3)+xi(4)*c.RX.h(4)+xi(5)*c.RX.h(5)))*c.eps*c.A)/(c.mt*cp(T));
