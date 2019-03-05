@@ -153,13 +153,13 @@ for field_ = fieldnames(s)'
     figure
     
     % run through KPIs
-    for i = 1:numel(KPI)
+    for i_kpi = 1:numel(KPI)
         % current KPI string
-        k = KPI{i};
+        k = KPI{i_kpi};
         
         % initialise subplots
-        subplot(2,ceil(numel(KPI)/2),i)
-        title(['max ' KPI_latex{i}])
+        subplot(2,ceil(numel(KPI)/2),i_kpi)
+        title(['max ' KPI_latex{i_kpi}])
         xlabel(sprintf('(%1$s)/(%1$s)_0',strrep(field,'_','\_')))
 
         % calculate scaled maximum value
@@ -179,4 +179,4 @@ for field_ = fieldnames(s)'
     % export
     figExport(12,12,['sensitivity/' field])
 end
-clear field_ field k_ k
+clear field_ field i_kpi k_ k
