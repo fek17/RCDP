@@ -14,9 +14,18 @@ t.range = [0.5:0.1:1.5]; % 50 to 150%
 s = struct;
 
 %% fiddle with struct c
+
+% setup progress bar
+progBar = waitbar(0,'Please wait...');
+
 tic
-for field_ = fieldnames(c)' 
-    field = string(field_);
+n_fields = numel(fieldnames(c));
+for i_field = 1:n_fields
+    field_ = fieldnames(c);
+    field = string(field_{i_field});
+    
+    % update progress bar
+    waitbar(i_field/n_fields,progBar,sprintf('Evaluating field %s (%u of %u)',field,i_field,n_fields));
     
     % fiddle with number fields
     if isfloat(c.(field))
@@ -61,10 +70,8 @@ for field_ = fieldnames(c)'
         % restore original value
         c.(field) = s.(field).real;
     
-    end
-    
     % fiddle with table fields
-    if istable(c.(field))
+    elseif istable(c.(field))
         
         % make cell array of row and variable names character vectors
         t.rows = c.(field).Properties.RowNames;
@@ -138,12 +145,15 @@ for field_ = fieldnames(c)'
     end
     
 end
-clear field_ field i_fac k_ k dim i_dim i_var var i_row row row_
+clear i_field field_ field i_fac k_ k dim i_dim i_var var i_row row row_
 toc
+
+% close progress bar
+close(progBar)
 
 %% make some pretty correlation plots
 
-t.export = true;
+t.export = false;
 
 % for each variable
 for field_ = fieldnames(s)' 
