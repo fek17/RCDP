@@ -11,19 +11,25 @@ set_param('PA_Reactor_2019/Cooling fluid inlet temperature (K)', 'OutValues', "[
 %% Random test
 
 % reactant
-T(1).range = [660 720];
-T(1).step = 5;
+T(1).lims = [665 715];
+T(1).step = 10;
 T(1).block = 'PA_Reactor_2019/Reactants Inlet temperature  (K)';
 
 % coolant
-T(2).range = [660 700];
-T(2).step = 10;
+T(2).lims = [665 695];
+T(2).step = 30;
 T(2).block = 'PA_Reactor_2019/Cooling fluid inlet temperature (K)';
 
 for i = 1:numel(T)
     
-    % make array of random integers
-    T(i).array = randi(T(i).range,1,10);
+    % map expected limits to 4*sigma (~4% chance of falling outside)
+    T(i).sigma = ( T(i).lims(2) - T(i).lims(1) )/4;
+    
+    % map midpoint of limits to mu
+    T(i).mu = ( T(i).lims(1) + T(i).lims(2) )/2;
+    
+    % make array of random integers (normal distribution)
+    T(i).array = randn(1,10) * T(i).sigma + T(i).mu;
     
     % format array into string
     T(i).string = join(['[' compose("%u",T(i).array) ']']);
