@@ -41,16 +41,15 @@ t.zspan = 0:0.1:10;           % m
 % initial conditions
 t.y0 = [0; 0; 0; 0; 0; c.T0; c.P0]; 
 
-% create empty variables table
-v = array2table(zeros(1,7));
-v.Properties.VariableNames = {'xi_1'        'xi_2'        'xi_3'        'xi_4'        'xi_5'        'T' 'P' };
-v.Properties.VariableUnits = {'kmol.h^{-1}' 'kmol.h^{-1}' 'kmol.h^{-1}' 'kmol.h^{-1}' 'kmol.h^{-1}' 'K' 'Pa'};
 
 % solve odes
 [t.z, t.y] = ode15s(@odefun, t.zspan, t.y0);
 
 % dump output in table
-v(1:size(t.y,1),1:7) = array2table(t.y);
+v = table;
+v(:,1:7) = array2table(t.y);
+v.Properties.VariableNames = {'xi_1'        'xi_2'        'xi_3'        'xi_4'        'xi_5'        'T' 'P' };
+v.Properties.VariableUnits = {'kmol.h^{-1}' 'kmol.h^{-1}' 'kmol.h^{-1}' 'kmol.h^{-1}' 'kmol.h^{-1}' 'K' 'Pa'};
 v.z = t.z;
 
 %% calculations
