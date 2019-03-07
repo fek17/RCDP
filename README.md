@@ -1,6 +1,15 @@
 # CE2-03-2 Reactor and Controller Design Project
 
-`reactor.m` is the main file. It can be run independently, and will draw constants from `constants.m`(!). `plots.m` does what it says on the tin.
+### Reactor
+
+- `reactor.m` is the main file. It can be run independently, and will draw constants from `constants.m`(!)
+- `plots.m` does what it says on the tin
+- `sensitivity.m` tests effect of varying key parameters on the output of `reactor.m`
+
+### Controller
+
+- `PA_Reactor_2019.slx` is the main file
+- `SimulinkTest.m` sets up a number of test scenarios
 
 ## Notes
 
