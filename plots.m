@@ -1,10 +1,15 @@
 %% CE2-03-2 Group 6
 %  Plots
-addpath(genpath(pwd))
-% requires the global variable v for values to plot
+
+global v
+
+% run reactor if we don't have the data already
+if ~isstruct(v)
+    reactor
+end
 
 % export?
-t.export = false;
+t.export = true;
 
 %% extents of reaction
 figure
@@ -36,6 +41,7 @@ for i = 1:numel(c.species)
 end
 ylabel('n_j / kmol.h^{-1}');
 xlabel('z / m');
+ylim([1e-7 1e-2]);
 yyaxis right
 plot(v.z,t.y(:,6),'DisplayName','T / K')
 ylabel('T / K');
