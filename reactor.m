@@ -156,11 +156,11 @@ c.S_w = pi * c.Dia * z; % m^2
 % temperature
 % dydz(6) = ((-Q-(xi(1)*c.RX.h(1)+xi(2)*c.RX.h(2)+xi(3)*c.RX.h(3)+xi(4)*c.RX.h(4)+xi(5)*c.RX.h(5)))*c.eps*c.A)/(c.mt*cp(T));
 
-dTdz = -Q-(c.RX.h(1)*dxidz(1) + c.RX.h(2)*dxidz(2) + c.RX.h(3)*dxidz(3) + c.RX.h(4)*dxidz(4) + c.RX.h(5)*dxidz(5))/(c.f.massFlow*cp(T));
+%dTdz = -Q-(dot(c.RX.h,dxidz))/(c.f.massFlow*cp(T));
 
 % dydz(6) = -(c.RX.h(1)*dxidz(1) + c.RX.h(2)*dxidz(2) + c.RX.h(3)*dxidz(3) + c.RX.h(4)*dxidz(4) + c.RX.h(5)*dxidz(5))/(cp(T)*c.f.massFlow+c.U*c.S_w);
 
-%dTdz = ( -dot(c.RX.h,dxidz) - cp(T) * T * dmdz - pi * c.Dia * c.U * (T - c.Tw) )/( cp(T) * m + c.U * pi * c.Dia * z );
+dTdz = ( -dot(c.RX.h,dxidz) - cp(T) * T * dmdz - pi * c.Dia * c.U * (T - c.Tw) )/( cp(T) * m + c.U * pi * c.Dia * z );
 
 % pressure
 dPdz = 1.3*power(10,5)-(c.rho_c*(1-c.eps)*c.g*z);
