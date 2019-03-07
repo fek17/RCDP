@@ -26,3 +26,6 @@ codegen/
 
 # Octave session info
 octave-workspace
+
+# Other rubbish
+.DS_Store
