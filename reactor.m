@@ -118,7 +118,7 @@ P = y(7);
 % kinetic constant
 k = exp( c.RX.lnk0 - c.RX.ER/T ); % h^{-1}.kmol^{1-n}.m^{3n}.kg_cat^{-1}
 
-% do material balances
+% do material balances w/ xi absolute
 S = reactorMB(c.S, xi, T, P);
 
 % rates of reaction ( kmol.h^{-1}.kg_cat^{-1} )
@@ -138,6 +138,13 @@ c.A_v = c.eps * c.A;
 % extents [ kmol.h^{-1}.m^{-1} ]
 dxidz = r * c.eps * c.A;
 
+% do material balances w/ xi differentials to get dmdz
+dSdz = reactorMB(c.S, dxidz, T, P);
+
+% extract total mass flow rate (absolute & differential)
+m = sum(S.m);
+dmdz = sum(dSdz.m);
+
 % heat capacity function
 cp = @(T) c.a + c.b*T + c.c*T^2 + c.d*T^3; % kJ kg^-1 K^-1
 
@@ -152,6 +159,8 @@ c.S_w = pi * c.Dia * z; % m^2
 dTdz = -Q-(c.RX.h(1)*dxidz(1) + c.RX.h(2)*dxidz(2) + c.RX.h(3)*dxidz(3) + c.RX.h(4)*dxidz(4) + c.RX.h(5)*dxidz(5))/(c.f.massFlow*cp(T));
 
 % dydz(6) = -(c.RX.h(1)*dxidz(1) + c.RX.h(2)*dxidz(2) + c.RX.h(3)*dxidz(3) + c.RX.h(4)*dxidz(4) + c.RX.h(5)*dxidz(5))/(cp(T)*c.f.massFlow+c.U*c.S_w);
+
+%dTdz = ( -dot(c.RX.h,dxidz) - cp(T) * T * dmdz - pi * c.Dia * c.U * (T - c.Tw) )/( cp(T) * m + c.U * pi * c.Dia * z );
 
 % pressure
 dPdz = 1.3*power(10,5)-(c.rho_c*(1-c.eps)*c.g*z);
@@ -189,7 +198,7 @@ function [S] = reactorMB(S, xi, T, P)
 
 global c
 
-% material balances
+% individual molar flowrate
 S.n = zeros(7,1);
 S.Properties.VariableUnits{'n'} = 'kmol.h^{-1}';
 S{'OX','n'}  = S{'OX','n0'} - xi(1) - xi(2) - xi(3);
@@ -203,6 +212,10 @@ S{'N2','n'}  = S{'N2','n0'};
 % total molar flowrate [ kmol.h^{-1} ]
 nt = S{'OX','n0'} + S{'O2','n0'} + S{'N2','n0'} + 5.5*xi(2) + 1.5*xi(3) + 5.5*xi(4) + 1.5*xi(5);
 % nt = sum(S.n); % alt. approach
+
+% mass flowrate
+S.m = S.n .* S.Mw;
+S.Properties.VariableUnits{'m'} = 'kg.h^{-1}';
 
 % volumetric flowrate
 vt = (nt * (c.R*T)/P) * 10^3; % m^3.h^{-1}
