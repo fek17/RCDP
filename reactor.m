@@ -20,14 +20,14 @@ c.A = pi*c.Dia^2/4;   % m^2
 c.f.massFlux = c.feedMassFlux;
 
 % total Mw of feed
-c.f.Mw = dot(c.S.x0,c.S.Mw);       % kg.kmol^{-1}
+c.f.Mw = dot(c.S.x0,c.S.Mw);            % kg.kmol^{-1}
 
 % feed mass flow
 c.f.massFlow = c.f.massFlux * c.A;      % kg.h^-1
 % *assumption klaxon* ? superficial mass flux so use total area of column
 
 % feed molar flow
-c.f.n0 = c.f.massFlow / c.f.Mw ;   % kmol.h^{-1}
+c.f.n0 = c.f.massFlow / c.f.Mw ;        % kmol.h^{-1}
 
 % component molar flows
 c.S.n0 = c.f.n0 * c.S.x0;
@@ -36,7 +36,7 @@ c.S.Properties.VariableUnits{'n0'} = 'kmol.h^{-1}';
 %% solver
 
 % height of reactor
-t.zspan = 0:0.1:10;           % m
+t.zspan = 0:0.05:5;           % m
 
 % initial conditions
 t.y0 = [0; 0; 0; 0; 0; c.T0; c.P0]; 
@@ -52,9 +52,7 @@ v.Properties.VariableNames = {'xi_1'        'xi_2'        'xi_3'        'xi_4'  
 v.Properties.VariableUnits = {'kmol.h^{-1}' 'kmol.h^{-1}' 'kmol.h^{-1}' 'kmol.h^{-1}' 'kmol.h^{-1}' 'K' 'Pa'};
 v.z = t.z;
 
-%% calculations
-
-% molar flows
+%% molar flows
 for i = 1:size(v,1)
     
     % material balances @ this position in reactor
@@ -62,18 +60,21 @@ for i = 1:size(v,1)
 
     % store molar flows in table
     for j = 1:numel(c.species)
+        n_j = sprintf('n_%s',c.species{j});
         
         % initialise columns on first run
         if i == 1
             % not using nasty eval here :)
-            v.(sprintf('n_%s',c.species{j})) = zeros(numel(t.zspan),1);
+            v.(n_j) = zeros(numel(t.zspan),1);
         end
         
-        v.(sprintf('n_%s',c.species{j}))(i) = t.S{c.species{j},'n'};
+        v.(n_j)(i) = t.S{c.species{j},'n'};
     end
     
 end
-clear i j
+clear i j n_j
+
+%% KPIs
 
 % yield of PA wrt. OX
 v.Y_PA_OX = v.n_PA / v.n_OX(1);
@@ -90,16 +91,13 @@ v.S_CO_OX = v.n_CO ./ (v.n_OX(1) - v.n_OX);
 % CO/CO2 fraction
 v.CO_CO2 = v.n_CO ./ v.n_CO2;
 
-%% output KPIs (for sensitivity analysis)
-
+% output (for sensitivity analysis)
 for i = 1:numel(KPI)
 
     % max value & z position
     [o.(KPI{i}).max.val, t.I_z] = max(v.(KPI{i}));
     o.(KPI{i}).max.z = v.z(t.I_z);
     
-    % min value & z position
-
 end
 clear i
 
@@ -117,7 +115,7 @@ P = y(7);
 % kinetic constant
 k = exp( c.RX.lnk0 - c.RX.ER/T ); % h^{-1}.kmol^{1-n}.m^{3n}.kg_cat^{-1}
 
-% do material balances w/ xi absolute
+% do material balances
 S = reactorMB(c.S, xi, T, P);
 
 % rates of reaction ( kmol.h^{-1}.kg_cat^{-1} )
@@ -128,38 +126,14 @@ r_c(4:5) = ( k(4:5) * S{'O2','C'}^c.n * S{'PA','C'} * c.b3 );
 % rates of reaction ( kmol.h^{-1} )
 r = r_c * c.rho_c * (1-c.eps)/c.eps;
 
-% d(kg_c)/dz
-c.dkgcdz = c.A * (1-c.eps) * c.rho_c;
-
-% void area
-c.A_v = c.eps * c.A;
-
 % extents [ kmol.h^{-1}.m^{-1} ]
 dxidz = r * c.eps * c.A;
-
-% do material balances w/ xi differentials to get dmdz
-dSdz = reactorMB(c.S, dxidz, T, P);
-
-% extract total mass flow rate (absolute & differential)
-m = sum(S.m);
-dmdz = sum(dSdz.m);
 
 % heat capacity function
 cp = @(T) c.a + c.b*T + c.c*T^2 + c.d*T^3; % kJ kg^-1 K^-1
 
-Q = c.Dia*pi*c.U*(T-c.Tw); %(T-c.Tw); % Q=A*U*(T-Tw), kJ h-1 m-1
-
-% wall area
-c.S_w = pi * c.Dia * z; % m^2
-
 % temperature
-% dydz(6) = ((-Q-(xi(1)*c.RX.h(1)+xi(2)*c.RX.h(2)+xi(3)*c.RX.h(3)+xi(4)*c.RX.h(4)+xi(5)*c.RX.h(5)))*c.eps*c.A)/(c.mt*cp(T));
-
-%dTdz = -Q-(dot(c.RX.h,dxidz))/(c.f.massFlow*cp(T));
-
-% dydz(6) = -(c.RX.h(1)*dxidz(1) + c.RX.h(2)*dxidz(2) + c.RX.h(3)*dxidz(3) + c.RX.h(4)*dxidz(4) + c.RX.h(5)*dxidz(5))/(cp(T)*c.f.massFlow+c.U*c.S_w);
-
-dTdz = ( -dot(c.RX.h,dxidz) - cp(T) * T * dmdz - pi * c.Dia * c.U * (T - c.Tw) )/( cp(T) * m + c.U * pi * c.Dia * z );
+dTdz = ( - c.U * pi * c.Dia * (T - c.Tw) - dot(c.RX.h,dxidz) )/( cp(T) * c.f.massFlow );
 
 % pressure
 dPdz = 1.3*power(10,5)-(c.rho_c*(1-c.eps)*c.g*z);
@@ -208,18 +182,11 @@ S{'CO','n'}  = S{'CO','n0'} + 8*xi(2) + 8*xi(4);
 S{'CO2','n'} = S{'CO2','n0'} + 8*xi(3) + 8*xi(5);
 S{'N2','n'}  = S{'N2','n0'};
 
-% total molar flowrate [ kmol.h^{-1} ]
-nt = S{'OX','n0'} + S{'O2','n0'} + S{'N2','n0'} + 5.5*xi(2) + 1.5*xi(3) + 5.5*xi(4) + 1.5*xi(5);
-% nt = sum(S.n); % alt. approach
-
-% mass flowrate
-S.m = S.n .* S.Mw;
-S.Properties.VariableUnits{'m'} = 'kg.h^{-1}';
-
-% volumetric flowrate
-vt = (nt * (c.R*T)/P) * 10^3; % m^3.h^{-1}
+% total volumetric flowrate
+vt = (sum(S.n) * c.R * T)/P * 10^3; % m^3.h^{-1}
 
 % concentration calculations
 S.C = S.n ./ vt;
 S.Properties.VariableUnits{'C'} = 'kmol.m^{-3}';
+
 end
