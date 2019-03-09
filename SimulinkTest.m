@@ -1,6 +1,11 @@
 %% Tests for Simulink Temperature Control Loop
+%  run blocks below as required
 
-%% Default test
+%% load model
+
+load_system('PA_Reactor_2019');
+
+%% default test
 set_param('PA_Reactor_2019/Reactants Inlet temperature  (K)', 'OutValues', "[690 691 692 692 692 690]", 'tsamp', '10');
 set_param('PA_Reactor_2019/Cooling fluid inlet temperature (K)', 'OutValues', "[680 680 678 677 680 680]", 'tsamp', '10');
 
@@ -8,7 +13,7 @@ set_param('PA_Reactor_2019/Cooling fluid inlet temperature (K)', 'OutValues', "[
 set_param('PA_Reactor_2019/Reactants Inlet temperature  (K)', 'OutValues', "[]", 'tsamp', '10');
 set_param('PA_Reactor_2019/Cooling fluid inlet temperature (K)', 'OutValues', "[680 680 685 690 695 705 705 705 705 705]", 'tsamp', '30');
 
-%% Random test
+%% random test
 
 % reactant
 T(1).lims = [665 715];
@@ -38,3 +43,8 @@ for i = 1:numel(T)
     set_param(T(i).block, 'OutValues', T(i).string, 'tsamp', num2str(T(i).step));
 
 end
+
+%% run simulation
+
+set_param('PA_Reactor_2019', 'Solver', 'ode15s', 'StopTime', num2str(60));
+sim('PA_Reactor_2019')
