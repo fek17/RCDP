@@ -53,21 +53,23 @@ v.Properties.VariableUnits = {'kmol.h^{-1}' 'kmol.h^{-1}' 'kmol.h^{-1}' 'kmol.h^
 v.z = t.z;
 
 %% molar flows
+
+% for each z position in output
 for i = 1:size(v,1)
     
-    % material balances @ this position in reactor
+    % do material balances
     t.S = reactorMB(c.S, v{i,{'xi_1' 'xi_2' 'xi_3' 'xi_4' 'xi_5'}}, v.T(i), v.P(i));
 
-    % store molar flows in table
+    % store each calculated flow
     for j = 1:numel(c.species)
         n_j = sprintf('n_%s',c.species{j});
         
-        % initialise columns on first run
+        % initialise columns in v on first run
         if i == 1
-            % not using nasty eval here :)
             v.(n_j) = zeros(numel(t.zspan),1);
         end
         
+        % store output in table
         v.(n_j)(i) = t.S{c.species{j},'n'};
     end
     
@@ -123,7 +125,7 @@ r_c(1)   = ( k(1)   * S{'O2','C'}^c.n * c.b1 * S{'OX','C'} )/( 1 + c.b1 * S{'OX'
 r_c(2:3) = ( k(2:3) * S{'O2','C'}^c.n * c.b2 * S{'OX','C'} )/( 1 + c.b2 * S{'OX','C'} );
 r_c(4:5) = ( k(4:5) * S{'O2','C'}^c.n * S{'PA','C'} * c.b3 );
 
-% rates of reaction ( kmol.h^{-1} )
+% rates of reaction ( kmol.h^{-1}.m^{-3} )
 r = r_c * c.rho_c * (1-c.eps)/c.eps;
 
 % extents [ kmol.h^{-1}.m^{-1} ]
@@ -140,6 +142,7 @@ dPdz = 1.3*power(10,5)-(c.rho_c*(1-c.eps)*c.g*z);
 
 % output derivatives
 dydz = [ dxidz dTdz dPdz ]';
+
 end
 
 % material balances
