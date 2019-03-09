@@ -9,11 +9,10 @@ if ~isstruct(v)
 end
 
 % export?
-t.export = true;
+t.export = false;
 
 %% extents of reaction
 figure
-yyaxis left
 hold on
 for i = 1:size(c.RX,1)
     t.this = sprintf('xi_%u',i);
@@ -21,17 +20,13 @@ for i = 1:size(c.RX,1)
 end
 ylabel('\xi_i / kmol.h^{-1}');
 xlabel('z / m');
-yyaxis right
-plot(v.z,t.y(:,6),'DisplayName','T / K')
-ylabel('T / K');
 legend('Location','northeast');
 
-figExport(12,12,'overview-extents');
+figExport(8,8,'overview-extents');
 
 %% molar flows (except inert N2)
 
 figure
-yyaxis left
 hold on
 for i = 1:numel(c.species)
     % remove inert
@@ -42,17 +37,13 @@ end
 ylabel('n_j / kmol.h^{-1}');
 xlabel('z / m');
 ylim([1e-7 1e-2]);
-yyaxis right
-plot(v.z,t.y(:,6),'DisplayName','T / K')
-ylabel('T / K');
 legend('Location','northeast');
 
-figExport(12,12,'overview-molar-flows');
+figExport(8,8,'overview-molar-flows');
 
 % log scale version
-yyaxis left
 set(gca, 'YScale', 'log');
-figExport(12,12,'overview-molar-flows-log');
+figExport(8,8,'overview-molar-flows-log');
 
 %% yield of PA wrt OX
 
