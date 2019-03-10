@@ -59,7 +59,7 @@ c.S{'N2','x0'} = 0.78;
 c.S{'O2','x0'} = 0.21;
 
 % feed mass flux
-c.feedMassFlux = 2500;                    % kg.m^-2.h^-1
+c.fMFlux = 2500;                    % kg.m^-2.h^-1
 
 %% energy
 

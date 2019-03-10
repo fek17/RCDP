@@ -17,7 +17,7 @@ c.A = pi*c.Dia^2/4;   % m^2
 %% feed
 
 % bring in variable
-c.f.massFlux = c.feedMassFlux;
+c.f.massFlux = c.fMFlux;
 
 % total Mw of feed
 c.f.Mw = dot(c.S.x0,c.S.Mw);            % kg.kmol^{-1}
