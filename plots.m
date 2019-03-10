@@ -36,7 +36,7 @@ for i = 1:numel(c.species)
 end
 ylabel('n_j / kmol.h^{-1}');
 xlabel('z / m');
-ylim([1e-7 1e-2]);
+ylim([1e-6 1e-2]);
 legend('Location','northeast');
 
 figExport(8,8,'overview-molar-flows');
