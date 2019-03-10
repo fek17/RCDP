@@ -4,7 +4,7 @@
 global v
 
 % run reactor if we don't have the data already
-if ~isstruct(v)
+if ~istable(v)
     reactor
 end
 

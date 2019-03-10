@@ -36,7 +36,7 @@ c.S.Properties.VariableUnits{'n0'} = 'kmol.h^{-1}';
 %% solver
 
 % height of reactor
-t.zspan = 0:0.05:5;           % m
+t.zspan = 0:0.01:5;           % m
 
 % initial conditions
 t.y0 = [0; 0; 0; 0; 0; c.T0; c.P0]; 
@@ -138,7 +138,7 @@ cp = @(T) c.a + c.b*T + c.c*T^2 + c.d*T^3; % kJ kg^-1 K^-1
 dTdz = ( - c.U * pi * c.Dia * (T - c.Tw) - dot(c.RX.h,dxidz) )/( cp(T) * c.f.massFlow );
 
 % pressure
-dPdz = 1.3*power(10,5)-(c.rho_c*(1-c.eps)*c.g*z);
+dPdz = - c.rho_c * (1-c.eps) * c.g;
 
 % output derivatives
 dydz = [ dxidz dTdz dPdz ]';
