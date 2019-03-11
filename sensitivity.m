@@ -8,7 +8,7 @@ constants
 c.Canary = true;
 
 % sensitivity range
-t.range = [0.5:0.1:1.5]; % 50 to 150%
+t.range = [0.5:0.05:1.5]; % 50 to 150%
 
 % set up structs
 s = struct;
@@ -25,7 +25,7 @@ for i_field = 1:n_fields
     field = string(field_{i_field});
     
     % update progress bar
-    waitbar(i_field/n_fields,progBar,sprintf('Evaluating field %s (%u of %u)',field,i_field,n_fields));
+    waitbar((i_field-1)/n_fields,progBar,sprintf('Evaluating field %s (%u of %u)',field,i_field,n_fields));
     
     % fiddle with number fields
     if isfloat(c.(field))
