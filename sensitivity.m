@@ -44,7 +44,7 @@ for i_field = 1:n_fields
             
             % get current multiplication factor & save
             t.r = t.range(i_fac);
-            s.(field).data.('f')(i_fac) = t.r;
+            s.(field).data.f(i_fac) = t.r;
             
             % set new value of constant
             c.(field) = s.(field).real * t.r;
@@ -112,7 +112,7 @@ for i_field = 1:n_fields
 
                     % get current multiplication factor & save
                     t.r = t.range(i_fac);
-                    s.([var '_' row_]).data.('f')(i_fac) = t.r;
+                    s.([var '_' row_]).data.f(i_fac) = t.r;
 
                     % set new value of constant
                     c.(field).(var)(row) = s.([var '_' row_]).real * t.r;
