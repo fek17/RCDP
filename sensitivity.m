@@ -19,10 +19,10 @@ s = struct;
 progBar = waitbar(0,'Please wait...');
 
 tic
-n_fields = numel(fieldnames(c));
+fields = fieldnames(c);
+n_fields = numel(fields);
 for i_field = 1:n_fields
-    field_ = fieldnames(c);
-    field = string(field_{i_field});
+    field = string(fields{i_field});
     
     % update progress bar
     waitbar((i_field-1)/n_fields,progBar,sprintf('Evaluating field %s (%u of %u)',field,i_field,n_fields));

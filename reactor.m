@@ -16,6 +16,12 @@ c.A = pi*c.Dia^2/4;   % m^2
 
 %% feed
 
+% mole fractions
+c.S.x0 = zeros(7,1);
+c.S{'OX','x0'} = c.fOX;
+c.S{'N2','x0'} = (1-c.fOX)*0.79;
+c.S{'O2','x0'} = (1-c.fOX)*0.21;
+
 % bring in variable
 c.f.massFlux = c.fMFlux;
 

@@ -52,11 +52,8 @@ c.S.Properties.VariableUnits{'Mw'} = 'kg.kmol^{-1}';
 
 %% feed
 
-% feed mole fractions
-c.S.x0 = zeros(7,1);
-c.S{'OX','x0'} = 0.01;
-c.S{'N2','x0'} = 0.78;
-c.S{'O2','x0'} = 0.21;
+% mol fraction of OX in feed
+c.fOX = 0.01;
 
 % feed mass flux
 c.fMFlux = 2500;                    % kg.m^-2.h^-1
