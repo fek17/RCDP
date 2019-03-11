@@ -20,9 +20,10 @@ for i = 1:size(c.RX,1)
 end
 ylabel('\xi_i / kmol.h^{-1}');
 xlabel('z / m');
-legend('Location','northeast');
+legend('Location','southoutside','Orientation','horizontal','NumColumns',3);
+legend('boxoff');
 
-figExport(8,8,'overview-extents');
+figExport(8,10,'overview-extents');
 
 %% molar flows (except inert N2)
 
@@ -37,13 +38,14 @@ end
 ylabel('n_j / kmol.h^{-1}');
 xlabel('z / m');
 ylim([1e-6 1e-2]);
-legend('Location','northeast');
+legend('Location','southoutside','Orientation','horizontal','NumColumns',3);
+legend('boxoff');
 
-figExport(8,8,'overview-molar-flows');
+figExport(8,10,'overview-molar-flows');
 
 % log scale version
 set(gca, 'YScale', 'log');
-figExport(8,8,'overview-molar-flows-log');
+figExport(8,10,'overview-molar-flows-log');
 
 %% yield of PA wrt OX
 
