@@ -44,7 +44,7 @@ for i_field = 1:n_fields
             
             % get current multiplication factor & save
             t.r = t.range(i_fac);
-            s.(field).data{i_fac,'f'} = t.r;
+            s.(field).data.('f')(i_fac) = t.r;
             
             % set new value of constant
             c.(field) = s.(field).real * t.r;
@@ -99,7 +99,7 @@ for i_field = 1:n_fields
                 end
                 
                 % store original value
-                s.([var '_' row_]).real = c.(field){row,var};
+                s.([var '_' row_]).real = c.(field).(var)(row);
                 
                 % repeat for each multiplication factor
                 for i_fac = 1:numel(t.range)
@@ -112,10 +112,10 @@ for i_field = 1:n_fields
 
                     % get current multiplication factor & save
                     t.r = t.range(i_fac);
-                    s.([var '_' row_]).data{i_fac,'f'} = t.r;
+                    s.([var '_' row_]).data.('f')(i_fac) = t.r;
 
                     % set new value of constant
-                    c.(field){row,var} = s.([var '_' row_]).real * t.r;
+                    c.(field).(var)(row) = s.([var '_' row_]).real * t.r;
 
                     % calculate new KPIs
                     try
@@ -137,7 +137,7 @@ for i_field = 1:n_fields
                 end
 
                 % restore original value
-                c.(field){row,var} = s.([var '_' row_]).real;
+                c.(field).(var)(row) = s.([var '_' row_]).real;
             
             end
         end
