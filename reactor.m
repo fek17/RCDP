@@ -18,9 +18,9 @@ c.A = pi*c.Dia^2/4;   % m^2
 
 % mole fractions
 c.S.x0 = zeros(7,1);
-c.S{'OX','x0'} = c.fOX;
-c.S{'N2','x0'} = (1-c.fOX)*0.79;
-c.S{'O2','x0'} = (1-c.fOX)*0.21;
+c.S.('x0')('OX') = c.fOX;
+c.S.('x0')('N2') = (1-c.fOX)*0.79;
+c.S.('x0')('O2') = (1-c.fOX)*0.21;
 
 % bring in variable
 c.f.massFlux = c.fMFlux;
@@ -127,9 +127,9 @@ k = exp( c.RX.lnk0 - c.RX.ER/T ); % h^{-1}.kmol^{1-n}.m^{3n}.kg_cat^{-1}
 S = reactorMB(c.S, xi, T, P);
 
 % rates of reaction ( kmol.h^{-1}.kg_cat^{-1} )
-r_c(1)   = ( k(1)   * S{'O2','C'}^c.n * c.b1 * S{'OX','C'} )/( 1 + c.b1 * S{'OX','C'} );
-r_c(2:3) = ( k(2:3) * S{'O2','C'}^c.n * c.b2 * S{'OX','C'} )/( 1 + c.b2 * S{'OX','C'} );
-r_c(4:5) = ( k(4:5) * S{'O2','C'}^c.n * S{'PA','C'} * c.b3 );
+r_c(1)   = ( k(1)   * S.('C')('O2')^c.n * c.b1 * S.('C')('OX') )/( 1 + c.b1 * S.('C')('OX') );
+r_c(2:3) = ( k(2:3) * S.('C')('O2')^c.n * c.b2 * S.('C')('OX') )/( 1 + c.b2 * S.('C')('OX') );
+r_c(4:5) = ( k(4:5) * S.('C')('O2')^c.n * S.('C')('PA') * c.b3 );
 
 % rates of reaction ( kmol.h^{-1}.m^{-3} )
 r = r_c * c.rho_c * (1-c.eps)/c.eps;
@@ -183,13 +183,13 @@ global c
 % individual molar flowrate
 S.n = zeros(7,1);
 S.Properties.VariableUnits{'n'} = 'kmol.h^{-1}';
-S{'OX','n'}  = S{'OX','n0'} - xi(1) - xi(2) - xi(3);
-S{'O2','n'}  = S{'O2','n0'} - 3*xi(1) - 6.5*xi(2) - 10.5*xi(3) - 3.5*xi(4) - 7.5*xi(5);
-S{'PA','n'}  = S{'PA','n0'} + xi(1) - xi(4) - xi(5);
-S{'H2O','n'} = S{'H2O','n0'} + 3*xi(1) + 5*xi(2) + 5*xi(3) + 2*xi(4) + 2*xi(5);
-S{'CO','n'}  = S{'CO','n0'} + 8*xi(2) + 8*xi(4);
-S{'CO2','n'} = S{'CO2','n0'} + 8*xi(3) + 8*xi(5);
-S{'N2','n'}  = S{'N2','n0'};
+S.('n')('OX')  = S.('n0')('OX') - xi(1) - xi(2) - xi(3);
+S.('n')('O2')  = S.('n0')('O2') - 3*xi(1) - 6.5*xi(2) - 10.5*xi(3) - 3.5*xi(4) - 7.5*xi(5);
+S.('n')('PA')  = S.('n0')('PA') + xi(1) - xi(4) - xi(5);
+S.('n')('H2O') = S.('n0')('H2O') + 3*xi(1) + 5*xi(2) + 5*xi(3) + 2*xi(4) + 2*xi(5);
+S.('n')('CO')  = S.('n0')('CO') + 8*xi(2) + 8*xi(4);
+S.('n')('CO2') = S.('n0')('CO2') + 8*xi(3) + 8*xi(5);
+S.('n')('N2')  = S.('n0')('N2');
 
 % total volumetric flowrate
 vt = (sum(S.n) * c.R * T)/P * 10^3; % m^3.h^{-1}
