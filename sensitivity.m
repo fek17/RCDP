@@ -98,30 +98,32 @@ for i_field = 1:n_fields
                     row_ = row;
                 end
                 
+                table_field = [var '_' row_];
+                
                 % store original value
-                s.([var '_' row_]).real = c.(field).(var)(row);
+                s.(table_field).real = c.(field).(var)(row);
                 
                 % repeat for each multiplication factor
                 for i_fac = 1:numel(t.range)
 
                     % initialise results table on first run
                     if i_fac == 1
-                        s.([var '_' row_]).data = array2table(zeros(numel(t.range),2*numel(KPI)+1));
-                        s.([var '_' row_]).data.Properties.VariableNames = [{'f'} strcat(KPI,'_max_val') strcat(KPI, '_max_z')];
+                        s.(table_field).data = array2table(zeros(numel(t.range),2*numel(KPI)+1));
+                        s.(table_field).data.Properties.VariableNames = [{'f'} strcat(KPI,'_max_val') strcat(KPI, '_max_z')];
                     end
 
                     % get current multiplication factor & save
                     t.r = t.range(i_fac);
-                    s.([var '_' row_]).data.f(i_fac) = t.r;
+                    s.(table_field).data.f(i_fac) = t.r;
 
                     % set new value of constant
-                    c.(field).(var)(row) = s.([var '_' row_]).real * t.r;
+                    c.(field).(var)(row) = s.(table_field).real * t.r;
 
                     % calculate new KPIs
                     try
                         reactor
                     catch ME % catch errors
-                        s.([var '_' row_]).error = ME;
+                        s.(table_field).error = ME;
                     end
 
                     % save results for each KPI
@@ -130,14 +132,14 @@ for i_field = 1:n_fields
                         k = char(k_);
 
                         % save KPI data to table
-                        s.([var '_' row_]).data.([k '_max_val'])(i_fac) = o.(k).max.val;
-                        s.([var '_' row_]).data.([k '_max_z'  ])(i_fac) = o.(k).max.z;
+                        s.(table_field).data.([k '_max_val'])(i_fac) = o.(k).max.val;
+                        s.(table_field).data.([k '_max_z'  ])(i_fac) = o.(k).max.z;
                     end
 
                 end
 
                 % restore original value
-                c.(field).(var)(row) = s.([var '_' row_]).real;
+                c.(field).(var)(row) = s.(table_field).real;
             
             end
         end
