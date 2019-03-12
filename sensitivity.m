@@ -99,7 +99,7 @@ for field_ = fieldnames(s)'
         
         % initialise subplots
         subplot(2,ceil(numel(KPI)/2),i_kpi)
-        title(['max ' KPI_latex{i_kpi}])
+        title(KPI_latex{i_kpi})
         xlabel(sprintf('(%1$s)/(%1$s)_0',strrep(field,'_','\_')))
 
         % calculate scaled maximum value
@@ -108,12 +108,12 @@ for field_ = fieldnames(s)'
         % plot effect on maximum value
         yyaxis left
         plot(s.(field).data.f,s.(field).data.([k '_max_sc']))
-        ylabel('(value)/(value)_0')
+        ylabel('(max)/(max)_0')
         
         % plot effect on z position of max
         yyaxis right
         plot(s.(field).data.f,s.(field).data.([k '_max_z'  ]))
-        ylabel('z / m')
+        ylabel('z_{max} / m')
     end
     
     % export
