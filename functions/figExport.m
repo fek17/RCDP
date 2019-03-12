@@ -1,7 +1,7 @@
 function figExport(w,h,name)
-global t
+global printFlag
 formatFig(w,h)
-if t.export == true
+if printFlag == true
     print(gcf, '-dpdf', [pwd '/figures/' name '.pdf']);
 end
 end

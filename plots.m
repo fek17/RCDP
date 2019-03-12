@@ -9,7 +9,8 @@ if ~istable(v)
 end
 
 % export?
-t.export = false;
+global printFlag
+printFlag = false;
 
 %% extents of reaction
 figure

@@ -3,8 +3,8 @@
 
 format long
 
-% constants, variables, temporary & output things
-global c v t o
+% constants, variables & output things
+global c v o
 
 % bring in constants.m only if sensitivity test flag DNE or is false
 if ~isfield(c,'Canary') || c.Canary == false
@@ -80,7 +80,6 @@ for i = 1:size(v,1)
     end
     
 end
-clear i j n_j
 
 %% KPIs
 
@@ -107,7 +106,6 @@ for i = 1:numel(KPI)
     o.(KPI{i}).max.z = v.z(t.I_z);
     
 end
-clear i
 
 %% function space
 
