@@ -87,43 +87,43 @@ for i_field = 1:n_fields
         
         % each variable
         for i_var = 1:numel(t.vars)
-            var = t.vars{i_var};
+            t.var = t.vars{i_var};
             
             % each row
             for i_row = 1:numel(t.rows)
-                row = t.rows{i_row};
-                if isfloat(row)
-                    row_ = num2str(row);
+                t.row = t.rows{i_row};
+                if isfloat(t.row)
+                    t.row_ = num2str(t.row);
                 else
-                    row_ = row;
+                    t.row_ = t.row;
                 end
                 
-                table_field = [var '_' row_];
+                t.table_field = [t.var '_' t.row_];
                 
                 % store original value
-                s.(table_field).real = c.(field).(var)(row);
+                s.(t.table_field).real = c.(field).(t.var)(t.row);
                 
                 % repeat for each multiplication factor
                 for i_fac = 1:numel(t.range)
 
                     % initialise results table on first run
                     if i_fac == 1
-                        s.(table_field).data = array2table(zeros(numel(t.range),2*numel(KPI)+1));
-                        s.(table_field).data.Properties.VariableNames = [{'f'} strcat(KPI,'_max_val') strcat(KPI, '_max_z')];
+                        s.(t.table_field).data = array2table(zeros(numel(t.range),2*numel(KPI)+1));
+                        s.(t.table_field).data.Properties.VariableNames = [{'f'} strcat(KPI,'_max_val') strcat(KPI, '_max_z')];
                     end
 
                     % get current multiplication factor & save
                     t.r = t.range(i_fac);
-                    s.(table_field).data.f(i_fac) = t.r;
+                    s.(t.table_field).data.f(i_fac) = t.r;
 
                     % set new value of constant
-                    c.(field).(var)(row) = s.(table_field).real * t.r;
+                    c.(field).(t.var)(t.row) = s.(t.table_field).real * t.r;
 
                     % calculate new KPIs
                     try
                         reactor
                     catch ME % catch errors
-                        s.(table_field).error = ME;
+                        s.(t.table_field).error = ME;
                     end
 
                     % save results for each KPI
@@ -132,14 +132,14 @@ for i_field = 1:n_fields
                         k = char(k_);
 
                         % save KPI data to table
-                        s.(table_field).data.([k '_max_val'])(i_fac) = o.(k).max.val;
-                        s.(table_field).data.([k '_max_z'  ])(i_fac) = o.(k).max.z;
+                        s.(t.table_field).data.([k '_max_val'])(i_fac) = o.(k).max.val;
+                        s.(t.table_field).data.([k '_max_z'  ])(i_fac) = o.(k).max.z;
                     end
 
                 end
 
                 % restore original value
-                c.(field).(var)(row) = s.(table_field).real;
+                c.(field).(t.var)(t.row) = s.(t.table_field).real;
             
             end
         end
@@ -147,7 +147,7 @@ for i_field = 1:n_fields
     end
     
 end
-clear i_field field_ field i_fac k_ k dim i_dim i_var var i_row row row_
+clear i_field field_ field i_fac k_ k dim i_dim i_var i_row
 toc
 
 % close progress bar
