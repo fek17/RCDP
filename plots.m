@@ -75,6 +75,19 @@ xlabel('z / m');
 
 figExport(8,8,'pressure');
 
+%% combined T P
+
+figure
+yyaxis left
+plot(v.z,v.T)
+ylabel('T / K');
+xlabel('z / m');
+yyaxis right
+plot(v.z,v.P)
+ylabel('P / Pa');
+
+figExport(8,8,'combined-temp-pressure');
+
 %% OX conversion
 
 figure
@@ -83,6 +96,19 @@ ylabel('f_{OX}^{OV}');
 xlabel('z / m');
 
 figExport(8,8,'conversion-OX');
+
+%% combined Y f
+
+figure
+yyaxis left
+plot(v.z,v.Y_PA_OX)
+ylabel('Y_{PA,OX}^{OV}');
+xlabel('z / m');
+yyaxis right
+plot(v.z,v.f_OX)
+ylabel('f_{OX}^{OV}');
+
+figExport(8,8,'combined-yield-PA-OX-conversion-OX');
 
 %% selectivity of (PA, CO) wrt. OX
 
