@@ -101,7 +101,7 @@ for i = 1:numel(fields)
     % plot effect on z position of max
     yyaxis right
     plot(s.(field).data.f,s.(field).data.([k '_max_z'  ]))
-    ylabel('z_{max} / m')
+    ylabel('z')
 end
 
 end
