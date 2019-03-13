@@ -11,10 +11,10 @@ if ~isfield(c,'Canary') || c.Canary == false
     constants
 end
 
-% cross sectional area of reactor
-c.A = pi*c.Dia^2/4;   % m^2
-
 %% feed
+
+% cross sectional area of reactor
+c.A = pi * c.Dia^2 / 4;                 % m^2
 
 % mole fractions
 c.S.x0 = zeros(7,1);
@@ -42,11 +42,10 @@ c.S.Properties.VariableUnits{'n0'} = 'kmol.h^{-1}';
 %% solver
 
 % height of reactor
-t.zspan = 0:0.01:5;           % m
+t.zspan = 0:0.01:5;                     % m
 
 % initial conditions
 t.y0 = [0; 0; 0; 0; 0; c.T0; c.P0]; 
-
 
 % solve odes
 [t.z, t.y] = ode15s(@odefun, t.zspan, t.y0);
@@ -122,30 +121,30 @@ T = y(6);
 P = y(7);
 
 % kinetic constant
-k = exp( c.RX.lnk0 - c.RX.ER/T ); % h^{-1}.kmol^{1-n}.m^{3n}.kg_cat^{-1}
+k = exp( c.RX.lnk0 - c.RX.ER/T );       % h^{-1}.kmol^{1-n}.m^{3n}.kg_cat^{-1}
 
 % do material balances
 S = reactorMB(c.S, xi, T, P);
 
-% rates of reaction ( kmol.h^{-1}.kg_cat^{-1} )
+% rates of reaction                     [ kmol.h^{-1}.kg_cat^{-1} ]
 r_c(1)   = ( k(1)   * S.C('O2')^c.n * c.b1 * S.C('OX') )/( 1 + c.b1 * S.C('OX') );
 r_c(2:3) = ( k(2:3) * S.C('O2')^c.n * c.b2 * S.C('OX') )/( 1 + c.b2 * S.C('OX') );
 r_c(4:5) = ( k(4:5) * S.C('O2')^c.n * S.C('PA') * c.b3 );
 
-% rates of reaction ( kmol.h^{-1}.m^{-3} )
-r = r_c * c.rho_c * (1-c.eps)/c.eps;
+% rates of reaction
+r = r_c * c.rho_c * (1-c.eps)/c.eps;    % kmol.h^{-1}.m^{-3}
 
-% extents [ kmol.h^{-1}.m^{-1} ]
-dxidz = r * c.eps * c.A;
+% extents
+dxidz = r * c.eps * c.A;                % kmol.h^{-1}.m^{-1}
 
-% heat capacity function
-cp = @(T) c.a + c.b*T + c.c*T^2 + c.d*T^3; % kJ kg^-1 K^-1
+% heat capacity function : [T] = K
+cp = @(T) c.a + c.b*T + c.c*T^2 + c.d*T^3; % kJ.kg^{-1}.K^{-1}
 
 % temperature
-dTdz = ( - c.U * pi * c.Dia * (T - c.Tw) - dot(c.RX.h,dxidz) )/( cp(T) * c.f.massFlow );
+dTdz = ( - c.U * pi * c.Dia * (T - c.Tw) - dot(c.RX.h,dxidz) )/( cp(T) * c.f.massFlow ); % K.m^{-1}
 
 % pressure
-dPdz = - c.rho_c * (1-c.eps) * c.g;
+dPdz = - c.rho_c * (1-c.eps) * c.g;     % Pa.m^{-1}
 
 % output derivatives
 dydz = [ dxidz dTdz dPdz ]';
@@ -154,6 +153,10 @@ end
 
 % material balances
 function [S] = reactorMB(S, xi, T, P)
+
+% TODO  vectorise in order to accept either single values (inside solver)
+%       or the entire results table v in one go (will be significantly
+%       faster, and avoids needing for loops to run this function)
 
 % inputs
 %   S   (table)
@@ -193,10 +196,10 @@ S.n('CO2') = S.n0('CO2') + 8*xi(3) + 8*xi(5);
 S.n('N2')  = S.n0('N2');
 
 % total molar flowrate
-n_T = sum(S.n);
+n_T = sum(S.n);                         % kmol.h^{-1}
 
 % total volumetric flowrate
-v_T = (n_T * c.R * T)/P * 10^3; % m^3.h^{-1}
+v_T = (n_T * c.R * T)/P * 10^3;         % m^3.h^{-1}
 
 % concentration calculations
 S.C = S.n ./ v_T;
