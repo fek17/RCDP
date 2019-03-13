@@ -86,8 +86,7 @@ global printFlag
 printFlag = false;
 
 % for each variable
-%for field_ = fieldnames(s)'
-for field_ = {'P0' 'T0' 'U'}
+for field_ = fieldnames(s)' 
     field = char(field_);
     
     % initialise plot
