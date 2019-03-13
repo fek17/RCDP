@@ -10,7 +10,7 @@ end
 
 % export?
 global printFlag
-printFlag = false;
+printFlag = true;
 
 %% extents of reaction
 figure
@@ -21,10 +21,15 @@ for i = 1:size(c.RX,1)
 end
 ylabel('\xi_i / kmol.h^{-1}');
 xlabel('z / m');
-legend('Location','southoutside','Orientation','horizontal','NumColumns',3);
-legend('boxoff');
 
-figExport(8,10,'overview-extents');
+lgd = legend;
+lgd.Location = 'northwest';
+lgd.Orientation = 'vertical';
+lgd.NumColumns = 1;
+lgd.Box = 'off';
+lgd.FontSize = 8;
+
+figExport(8,8,'overview-extents');
 
 %% molar flows (except inert N2)
 
@@ -39,14 +44,16 @@ end
 ylabel('n_j / kmol.h^{-1}');
 xlabel('z / m');
 ylim([1e-6 1e-2]);
-legend('Location','southoutside','Orientation','horizontal','NumColumns',3);
-legend('boxoff');
-
-figExport(8,10,'overview-molar-flows');
-
-% log scale version
 set(gca, 'YScale', 'log');
-figExport(8,10,'overview-molar-flows-log');
+
+lgd = legend;
+lgd.Location = 'southeast';
+lgd.Orientation = 'horizontal';
+lgd.NumColumns = 2;
+lgd.Box = 'off';
+lgd.FontSize = 8;
+
+figExport(8,8,'overview-molar-flows-log');
 
 %% yield of PA wrt OX
 
