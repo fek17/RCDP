@@ -19,15 +19,6 @@ multiPlot(s,fields,i_kpi,KPI)
 
 figExport(15,4,'sensitivity/overview-b1-b2-b3')
 
-%% dia, eps on f_OX
-
-i_kpi = 2;
-fields = {'Dia' 'eps'}; 
-
-multiPlot(s,fields,i_kpi,KPI)
-
-figExport(10,4,'sensitivity/overview-Dia-eps')
-
 %% ER 4/5 on Y_PA
 
 i_kpi = 1;
@@ -36,6 +27,24 @@ fields = {'ER_4' 'ER_5'};
 multiPlot(s,fields,i_kpi,KPI)
 
 figExport(10,4,'sensitivity/overview-ER_4-ER_5')
+
+%% dia on f_OX
+
+i_kpi = 2;
+fields = {'Dia'};
+
+multiPlot(s,fields,i_kpi,KPI)
+
+figExport(5,4,'sensitivity/overview-Dia')
+
+%% eps on f_OX
+
+i_kpi = 2;
+fields = {'eps'}; 
+
+multiPlot(s,fields,i_kpi,KPI)
+
+figExport(5,4,'sensitivity/overview-eps')
 
 %% fOX
 
