@@ -13,6 +13,7 @@ global printFlag
 printFlag = true;
 
 %% extents of reaction
+
 figure
 hold on
 for i = 1:size(c.RX,1)
@@ -54,6 +55,30 @@ lgd.Box = 'off';
 lgd.FontSize = 8;
 
 figExport(8,8,'overview-molar-flows-log');
+
+%% mole fractions (except inert N2)
+
+figure
+hold on
+for i = 1:numel(c.species)
+    % remove inert
+    if strcmp(c.species{i},'N2') == false
+        plot(v.z,v.(['x_' c.species{i}]),'DisplayName',['x_{' c.species{i} '}'])
+    end
+end
+ylabel('x_j');
+xlabel('z / m');
+ylim([1e-5 1]);
+set(gca, 'YScale', 'log');
+
+lgd = legend;
+lgd.Location = 'southeast';
+lgd.Orientation = 'horizontal';
+lgd.NumColumns = 2;
+lgd.Box = 'off';
+lgd.FontSize = 8;
+
+figExport(8,8,'overview-mole-fractions');
 
 %% yield of PA wrt OX
 

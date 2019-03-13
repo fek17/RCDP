@@ -66,17 +66,20 @@ for i = 1:size(v,1)
     % do material balances
     t.S = reactorMB(c.S, v{i,{'xi_1' 'xi_2' 'xi_3' 'xi_4' 'xi_5'}}, v.T(i), v.P(i));
 
-    % store each calculated flow
+    % store each calculated flow & fraction
     for j = 1:numel(c.species)
         n_j = sprintf('n_%s',c.species{j});
+        x_j = sprintf('x_%s',c.species{j});
         
         % initialise columns in v on first run
         if i == 1
             v.(n_j) = zeros(numel(t.zspan),1);
+            v.(x_j) = zeros(numel(t.zspan),1);
         end
         
         % store output in table
         v.(n_j)(i) = t.S{c.species{j},'n'};
+        v.(x_j)(i) = t.S{c.species{j},'x'};
     end
     
 end
@@ -189,11 +192,17 @@ S.n('CO')  = S.n0('CO') + 8*xi(2) + 8*xi(4);
 S.n('CO2') = S.n0('CO2') + 8*xi(3) + 8*xi(5);
 S.n('N2')  = S.n0('N2');
 
+% total molar flowrate
+n_T = sum(S.n);
+
 % total volumetric flowrate
-vt = (sum(S.n) * c.R * T)/P * 10^3; % m^3.h^{-1}
+v_T = (n_T * c.R * T)/P * 10^3; % m^3.h^{-1}
 
 % concentration calculations
-S.C = S.n ./ vt;
+S.C = S.n ./ v_T;
 S.Properties.VariableUnits{'C'} = 'kmol.m^{-3}';
+
+% mole fraction calculations
+S.x = S.n ./ n_T;
 
 end
