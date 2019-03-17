@@ -14,7 +14,7 @@ figExport(8,6,'temp-in')
 
 figure
 plotDataSeries(logsout,'Outlet - PA flowrate');
-plotBounds([1])
+plotBounds([1.5 1])
 
 figExport(8,6,'PA-flow')
 
@@ -22,7 +22,7 @@ figExport(8,6,'PA-flow')
 
 figure
 plotDataSeries(logsout,'T_c_out');
-plotBounds([710 750])
+plotBounds([730 710 750])
 
 figExport(8,6,'temp-out')
 
@@ -79,7 +79,14 @@ end
 function plotBounds(val)
 x = [0 1010];
 for i=1:numel(val)
-    line( [x(1); x(2)], val(i)*ones(2,1), 'Color', 'r', 'LineStyle', '--')
+    thisLine = line( [x(1); x(2)], val(i)*ones(2,1));
+    if i == 1
+        thisLine.Color = 'g';
+        thisLine.LineStyle = '-.';
+    else
+        thisLine.Color = 'r';
+        thisLine.LineStyle = '--';
+    end
 end
 end
 
