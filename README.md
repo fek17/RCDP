@@ -19,3 +19,4 @@
 ## Useful links
 
 - [`rcdp-report` on Overleaf](https://www.overleaf.com/project/5c79642b6137e10d5ee8b4ef)
+- [`rcdp-addendum` on Overleaf](https://www.overleaf.com/project/5c8b7216886bd01953655746)
